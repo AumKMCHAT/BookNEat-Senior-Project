@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "110135006855",
+    "project_id": "bookneat-senior-project",
+    "storage_bucket": "bookneat-senior-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:110135006855:android:fcae004c1d52597caa0a22",
+        "android_client_info": {
+          "package_name": "com.example.book_n_eat_senior_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "110135006855-uftkb5np3bg3ge40vp5h3m71jfbple7g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIe1akLQNAY5t83Uz6-2GzL46heKVBphc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "110135006855-uftkb5np3bg3ge40vp5h3m71jfbple7g.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "110135006855-5b3ag3skl5cvgbn0758ub36llrvjobb1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.bookNEatSeniorProject"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
