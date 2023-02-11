@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:book_n_eat_senior_project/models/user.dart' as model;
 import 'package:book_n_eat_senior_project/resources/storage_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +7,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AuthMedthods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firetore = FirebaseFirestore.instance;
+
+  Future<model.User> getUserDetails() async {
+    User currentUser = _auth.currentUser!;
+
+    DocumentSnapshot snap =
+        await _firetore.collection('users').doc(currentUser.uid).get();
+
+    return model.User.fromSnap(snap);
+  }
 
   // sign up user
   Future<String> signUpUser(
@@ -34,14 +44,19 @@ class AuthMedthods {
           String photoUrl = await StorageMethods()
               .uploadImageToStorage('profilePics', file, false);
           // add user to database
-          await _firetore.collection('users').doc(cred.user!.uid).set({
-            'uid': cred.user!.uid,
-            'email': email,
-            'firstName': firstName,
-            'lastName': lastName,
-            'role': role,
-            'photoUrl': photoUrl
-          });
+
+          model.User user = model.User(
+              uid: cred.user!.uid,
+              email: email,
+              firstName: firstName,
+              lastName: lastName,
+              role: role,
+              photoUrl: photoUrl);
+
+          await _firetore
+              .collection('users')
+              .doc(cred.user!.uid)
+              .set(user.toJson());
 
           res = "success";
         } else {

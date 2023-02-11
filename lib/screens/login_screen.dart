@@ -1,4 +1,6 @@
 import 'package:book_n_eat_senior_project/resources/auth_methods.dart';
+import 'package:book_n_eat_senior_project/screens/home_screen.dart';
+import 'package:book_n_eat_senior_project/screens/signup_screen.dart';
 import 'package:book_n_eat_senior_project/utils/colors.dart';
 import 'package:book_n_eat_senior_project/utils/utils.dart';
 import 'package:book_n_eat_senior_project/widgets/text_field_input.dart';
@@ -32,8 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text, password: _passwordController.text);
 
     if (res == "success") {
-      //
-
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()));
     } else {
       //
       showSnackBar(res, context);
@@ -41,6 +43,11 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void navigateToSignup() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => const SignupScreen()));
   }
 
   @override
@@ -95,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: CircularProgressIndicator(
                       color: primaryColor,
                     ))
-                  : const Text("Log in"),
+                  : const Text("Login"),
             ),
           ),
           const SizedBox(
@@ -103,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           Flexible(flex: 2, child: Container()),
 
-          //Transitioning to sighning up
+          //Transitioning to signing up
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -117,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 width: 12,
               ),
               GestureDetector(
-                onTap: () {},
+                onTap: navigateToSignup,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     vertical: 8,
