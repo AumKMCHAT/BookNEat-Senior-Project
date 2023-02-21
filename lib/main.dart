@@ -1,6 +1,7 @@
 import 'package:book_n_eat_senior_project/providers/user_provider.dart';
 import 'package:book_n_eat_senior_project/screens/home_screen.dart';
 import 'package:book_n_eat_senior_project/screens/login_screen.dart';
+import 'package:book_n_eat_senior_project/screens/signup_restaurant_screen.dart';
 import 'package:book_n_eat_senior_project/screens/signup_screen.dart';
 import 'package:book_n_eat_senior_project/utils/colors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -46,7 +47,8 @@ class MyApp extends StatelessWidget {
                 );
               }
 
-              return const LoginScreen();
+              // return const LoginScreen();
+              return const SignupRestaurantScreen();
             },
           )),
     );

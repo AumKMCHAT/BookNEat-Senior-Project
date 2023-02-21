@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,5 +22,17 @@ class StorageMethods {
     TaskSnapshot snapshot = await uploadTask;
     String downloadUrl = await snapshot.ref.getDownloadURL();
     return downloadUrl;
+  }
+
+  Future<String> uploadFile(String childName, File file, bool isPost) async {
+    final metaData = SettableMetadata(contentType: 'image/jpeg');
+    final storageRef = _storage.ref();
+    Reference ref = storageRef.child(childName).child(file.hashCode.toString());
+    final uploadTask = ref.putFile(file, metaData);
+
+    final taskSnapshot = await uploadTask.whenComplete(() => null);
+    String url = await taskSnapshot.ref.getDownloadURL();
+
+    return url;
   }
 }
