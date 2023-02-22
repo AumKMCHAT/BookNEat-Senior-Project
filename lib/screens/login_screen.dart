@@ -1,5 +1,6 @@
 import 'package:book_n_eat_senior_project/resources/auth_methods.dart';
 import 'package:book_n_eat_senior_project/screens/home_screen.dart';
+import 'package:book_n_eat_senior_project/screens/res_main_screen.dart';
 import 'package:book_n_eat_senior_project/screens/signup_screen.dart';
 import 'package:book_n_eat_senior_project/utils/colors.dart';
 import 'package:book_n_eat_senior_project/utils/utils.dart';
@@ -35,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (res == "success") {
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()));
+          MaterialPageRoute(builder: (context) => const ResMainScreen()));
     } else {
       //
       showSnackBar(res, context);

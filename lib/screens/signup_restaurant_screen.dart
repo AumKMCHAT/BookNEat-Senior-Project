@@ -4,6 +4,7 @@ import 'package:book_n_eat_senior_project/screens/home_screen.dart';
 import 'package:book_n_eat_senior_project/screens/login_screen.dart';
 import 'package:book_n_eat_senior_project/utils/colors.dart';
 import 'package:book_n_eat_senior_project/utils/utils.dart';
+import 'package:book_n_eat_senior_project/widgets/app_bar.dart';
 import 'package:book_n_eat_senior_project/widgets/text_field_input.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
@@ -111,6 +112,7 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: homeAppBar(context),
       body: SafeArea(
           child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 32),
