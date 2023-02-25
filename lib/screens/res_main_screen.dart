@@ -1,3 +1,6 @@
+import 'package:book_n_eat_senior_project/screens/fav_screen.dart';
+import 'package:book_n_eat_senior_project/screens/history_screen.dart';
+import 'package:book_n_eat_senior_project/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/app_bar.dart';
@@ -13,7 +16,12 @@ class ResMainScreen extends StatefulWidget {
 class _ResMainScreen extends State<ResMainScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = [Body()];
+  final List<Widget> _pages = [
+    ResBody(),
+    FavScreen(),
+    HistoryScreen(),
+    ProfileScreen()
+  ];
 
   void _onItemTapped(int index) {
     setState(() {

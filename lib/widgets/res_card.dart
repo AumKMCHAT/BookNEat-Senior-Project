@@ -6,12 +6,14 @@ class ResCard extends StatelessWidget {
   final String title;
   final String catagory;
   final String status;
+  final List<String> photo;
 
   const ResCard({
     super.key,
     required this.title,
     required this.catagory,
     required this.status,
+    required this.photo,
   });
 
   @override
@@ -20,7 +22,11 @@ class ResCard extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => ResScreen()));
+            context,
+            MaterialPageRoute(
+                builder: (context) => ResScreen(
+                      name: title,
+                    )));
       },
       child: Container(
         padding: EdgeInsets.all(20),
@@ -38,13 +44,13 @@ class ResCard extends StatelessWidget {
         child: Row(
           children: <Widget>[
             Container(
-              padding: const EdgeInsets.fromLTRB(10, 0, 30, 0),
+              padding: const EdgeInsets.fromLTRB(10, 0, 15, 0),
               decoration: BoxDecoration(
                 color: kPrimaryColor.withOpacity(0.13),
                 shape: BoxShape.circle,
               ),
               child: Image(
-                image: AssetImage('assets/images/res1.jpg'),
+                image: NetworkImage(photo[0]),
                 height: 150,
                 width: 200,
               ),
