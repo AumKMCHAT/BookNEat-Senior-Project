@@ -1,6 +1,6 @@
 import 'package:book_n_eat_senior_project/resources/auth_methods.dart';
-import 'package:book_n_eat_senior_project/screens/home_screen.dart';
 import 'package:book_n_eat_senior_project/screens/login_screen.dart';
+import 'package:book_n_eat_senior_project/screens/res_main_screen.dart';
 import 'package:book_n_eat_senior_project/utils/colors.dart';
 import 'package:book_n_eat_senior_project/utils/utils.dart';
 import 'package:book_n_eat_senior_project/widgets/text_field_input.dart';
@@ -28,7 +28,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isLoading = false;
 
   @override
-  void dispost() {
+  void dispose() {
     super.dispose();
     _emailController.dispose();
     _passwordController.dispose();
@@ -55,7 +55,7 @@ class _SignupScreenState extends State<SignupScreen> {
         confirmPassword: _confirmPasswordController.text,
         firstName: _firstNameController.text,
         lastName: _lastNameController.text,
-        file: _image!);
+        file: _image);
 
     setState(() {
       _isLoading = false;
@@ -65,7 +65,7 @@ class _SignupScreenState extends State<SignupScreen> {
       showSnackBar(res, context);
     } else {
       Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()));
+          MaterialPageRoute(builder: (context) => const ResMainScreen()));
     }
   }
 

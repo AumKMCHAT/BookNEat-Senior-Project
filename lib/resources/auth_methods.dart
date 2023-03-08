@@ -1,13 +1,16 @@
 import 'dart:io';
-import 'dart:typed_data';
+import 'package:book_n_eat_senior_project/models/menu.dart';
 import 'package:book_n_eat_senior_project/models/user.dart' as model_user;
 import 'package:book_n_eat_senior_project/models/restuarant.dart'
     as model_restaurant;
+import 'package:book_n_eat_senior_project/models/reservation.dart'
+    as model_reservation;
 import 'package:book_n_eat_senior_project/resources/storage_methods.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/src/material/time.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:image_picker/image_picker.dart';
 
 class AuthMedthods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -29,11 +32,17 @@ class AuthMedthods {
       required String confirmPassword,
       required String firstName,
       required String lastName,
-      required Uint8List file,
+      Uint8List? file,
       String role = "customer"}) async {
     String res = "Some error occurred";
-
+    if (file == null) {
+      final ByteData bytes = await rootBundle.load(
+          '/Users/kmchat/FlutterProject/book_n_eat_senior_project/assets/images/userPic.jpg');
+      final Uint8List list = bytes.buffer.asUint8List();
+      file = list;
+    }
     try {
+      print("pass to auth_methods");
       if (email.isNotEmpty &&
           password.isNotEmpty &&
           confirmPassword.isNotEmpty &&
@@ -65,16 +74,14 @@ class AuthMedthods {
 
           res = "success";
         } else {
-          print("password is not match");
+          res = 'Password is not match';
         }
       } else {
-        print("fill every box");
+        res = ("Please fill every box");
       }
     } on FirebaseAuthException catch (err) {
-      if (err.code == 'invalid-email') {
-        res = 'The email is badly formatted.';
-      } else if (err.code == 'weak-password') {
-        res = 'Password should be at least 6 characters';
+      if (err.code.isNotEmpty) {
+        res = err.message!;
       }
     } catch (err) {
       res = err.toString();
@@ -99,9 +106,9 @@ class AuthMedthods {
       } else {
         res = "Please enter all the fields";
       }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'wrong-password') {
-        res = 'worong-password';
+    } on FirebaseAuthException catch (err) {
+      if (err.code.isNotEmpty) {
+        res = err.message!;
       }
     } catch (err) {
       return err.toString();
@@ -117,58 +124,127 @@ class AuthMedthods {
       {required String name,
       required String category,
       required Position position,
-      required String timeAvialable,
       required List<File> files,
       required String telephone,
       required bool status,
-      String role = "restaurant"}) async {
+      String role = "restaurant",
+      required Timestamp timeOpen,
+      required Timestamp timeClose,
+      required int workingMinute,
+      required List<String> days}) async {
     String res = "Some error occurred";
     List<String> photoUrls = [];
 
     // current user foreignkey
     final User? user = _auth.currentUser;
-    // final currentUserUid = user!.uid;
-    const currentUserUid = "U6aUNtE3w0gp5OUDbThPoWTTIfu2";
+    final currentUserUid = user!.uid;
+    // const currentUserUid = "0qjetg1HgNeEj5shfeS4yqBxFuk1";
     print(currentUserUid);
 
     var collection = _firestore.collection('users');
-    collection
-        .doc(currentUserUid) // <-- Doc ID where data should be updated.
-        .update({'role': role}) // <-- Updated data
-        .then((_) => print('Updated'))
-        .catchError((error) => print('Update failed: $error'));
-
     try {
+      int count = files.length;
       files.forEach((element) async {
         String photoUrl =
             await StorageMethods().uploadFile('restaurantPics', element, false);
         print(photoUrl);
         photoUrls.add(photoUrl);
+        count--;
+
+        double lat = position.latitude;
+        double long = position.longitude;
+        GeoPoint geoPoint = GeoPoint(lat, long);
+
+        // update role
+        if (count == 0) {
+          collection
+              .doc(currentUserUid) // <-- Doc ID where data should be updated.
+              .update({'role': role}) // <-- Updated data
+              .then((_) => print('Updated'))
+              .catchError((error) => print('Update failed: $error'));
+
+          collection
+              .doc(currentUserUid)
+              .update({'resId': name})
+              .then((value) => print("Add resId to users"))
+              .catchError((error) => print('Add failed: $error'));
+          model_restaurant.Restaurant restaurant = model_restaurant.Restaurant(
+              resId: name,
+              name: name,
+              category: category,
+              location: geoPoint,
+              photoUrl: photoUrls,
+              telephone: telephone,
+              status: status,
+              days: days,
+              timeOpen: timeOpen,
+              timeClose: timeClose,
+              workingMinute: workingMinute,
+              userId: currentUserUid);
+
+          await _firestore
+              .collection('restaurants')
+              .doc(name)
+              .set(restaurant.toJson());
+          res = "success";
+        }
       });
+    } on FirebaseException catch (e) {
+      if (e.code.isNotEmpty) {
+        res = e.message!;
+      }
+    } catch (err) {
+      res = err.toString();
+    }
+    return res;
+  }
 
-      print('photoUrls: $photoUrls');
-      double lat = position.latitude;
-      double long = position.longitude;
-      GeoPoint geoPoint = GeoPoint(lat, long);
+  Future<void> uploadMenu(List<Menu> menus) async {
+    // final User? user = _auth.currentUser;
+    // _firestore.collection('users').doc(_auth.currentUser!.uid).get().then(
+    //     (DocumentSnapshot documentSnapshot) => print(documentSnapshot.data()));
+    // _firestore.collection('menus').doc(_auth.currentUser!.uid);
+    Menu menu = menus[0];
+    print(menus.length);
+    Map<String, dynamic> map = menu.toJson();
+    for (int i = 1; i < menus.length; i++) {
+      Menu m = menus[i];
+      map.addAll(m.toJson());
+    }
 
-      // update role
-      model_restaurant.Restaurant restaurant = model_restaurant.Restaurant(
-          resId: name,
-          name: name,
-          category: category,
-          location: geoPoint,
-          timeAvialable: timeAvialable,
-          photoUrl: photoUrls,
-          telephone: telephone,
-          status: status,
-          userId: currentUserUid);
+    _firestore.collection('menus').doc('testResId').set(map);
+    print(map.length);
+  }
+
+  Future<String> bookingRestaurant({
+    required int quantity,
+    required Timestamp bookingDate,
+    required String request,
+    required String resId,
+    required String status,
+    required String userId,
+  }) async {
+    String res = "Some error occurred";
+    try {
+      model_reservation.Reservation reservation = model_reservation.Reservation(
+        userId: userId,
+        quantity: quantity,
+        bookingDate: bookingDate,
+        request: request,
+        resId: resId,
+        status: status,
+      );
 
       await _firestore
-          .collection('restaurants')
-          .doc(name)
-          .set(restaurant.toJson());
+          .collection('reservations')
+          .doc()
+          .set(reservation.toJson());
 
       res = "success";
+    } on FirebaseAuthException catch (err) {
+      if (err.code.isNotEmpty) {
+        res = err.message!;
+      }
     } catch (err) {
       res = err.toString();
     }

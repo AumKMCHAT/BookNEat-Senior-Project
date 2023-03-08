@@ -1,3 +1,4 @@
+import 'package:book_n_eat_senior_project/screens/booking_screen.dart';
 import 'package:book_n_eat_senior_project/screens/rating_screen.dart';
 import 'package:book_n_eat_senior_project/widgets/res_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -264,8 +265,12 @@ class _ResScreenState extends State<ResScreen> {
         child: TextButton(
             style: OutlinedButton.styleFrom(padding: EdgeInsets.all(15)),
             onPressed: () {
-              // Navigator.push(context,
-              //     MaterialPageRoute(builder: (context) => ReservScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BookingScreen(
+                            resId: widget.name,
+                          )));
             },
             child: Padding(
               padding: EdgeInsets.only(left: 100),

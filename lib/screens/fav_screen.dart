@@ -19,13 +19,6 @@ class FavScreen extends StatelessWidget {
                   color: Colors.black,
                 )),
           ),
-          Center(
-            child: ResCard(
-              title: "Juju Restaurant",
-              catagory: "อาหารคาว",
-              status: "Open",
-            ),
-          ),
         ],
       ),
     );
