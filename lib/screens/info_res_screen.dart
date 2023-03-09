@@ -10,6 +10,7 @@ import 'package:book_n_eat_senior_project/models/user.dart' as model;
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/user_provider.dart';
 import '../widgets/app_bar.dart';
+import 'test_screen.dart';
 
 class ResScreen extends StatefulWidget {
   final String name;
@@ -28,7 +29,6 @@ class _ResScreenState extends State<ResScreen> {
   @override
   void initState() {
     super.initState();
-    // getFirstName();
     addData();
   }
 
@@ -37,11 +37,40 @@ class _ResScreenState extends State<ResScreen> {
     await _userProvider.refreshUser();
   }
 
-  checkData(iSaved, user, res) {}
+  void handleButtonPress(String user, String restaurant) async {
+    if (isSaved) {
+      Query myQuery = FirebaseFirestore.instance
+          .collection('save')
+          .where('userId', isEqualTo: user)
+          .where('resId', isEqualTo: restaurant);
+      QuerySnapshot querySnapshot = await myQuery.get();
+      // Delete data from Firestore
+      List<QueryDocumentSnapshot> documents = querySnapshot.docs;
+      documents.forEach((document) {
+        document.reference.delete();
+      });
+      setState(() {
+        isSaved = !isSaved;
+      });
+      print('delete');
+    } else {
+      // Add data to Firestore
+      FirebaseFirestore.instance.collection('save').add({
+        'resId': restaurant,
+        'userId': user,
+      });
+      setState(() {
+        isSaved = !isSaved;
+      });
+      print('set');
+    }
+    // Update the state of the button
+  }
 
   @override
   Widget build(BuildContext context) {
     model.User user = Provider.of<UserProvider>(context).getUser;
+
     return Scaffold(
       appBar: homeAppBar(context),
       body: SingleChildScrollView(
@@ -59,8 +88,11 @@ class _ResScreenState extends State<ResScreen> {
                           fontSize: 20,
                         ))),
                 StreamBuilder<QuerySnapshot>(
-                  stream:
-                      FirebaseFirestore.instance.collection('save').snapshots(),
+                  stream: FirebaseFirestore.instance
+                      .collection('save')
+                      .where('userId', isEqualTo: user.userId)
+                      .where('resId', isEqualTo: widget.name)
+                      .snapshots(),
                   builder: (context, snapshot) {
                     // Check if there's data in the collection
                     if (snapshot.hasData) {
@@ -72,14 +104,14 @@ class _ResScreenState extends State<ResScreen> {
                           // Set isSaved to true
                           print('success');
                           // isSaved = true;
-                          setState(() {
-                            isSaved = true;
-                          });
+                          isSaved = true;
+                        } else {
+                          isSaved = false;
                         }
                       }
                     }
                     return SizedBox(
-                      width: 100,
+                      width: 200,
                       height: 100,
                       child: Padding(
                         padding: EdgeInsets.fromLTRB(130, 5, 0, 0),
@@ -87,29 +119,9 @@ class _ResScreenState extends State<ResScreen> {
                           iconSize: 30.0,
                           icon: isSaved
                               ? Icon(Icons.favorite)
-                              : Icon(Icons.favorite_border_outlined),
+                              : Icon(Icons.favorite_outline_rounded),
                           onPressed: () async {
-                            if (isSaved == false) {
-                              print('faleid');
-                              saves.add({
-                                'resId': widget.name,
-                                'userId': user.userId,
-                              });
-                              isSaved = true;
-                            } else {
-                              CollectionReference collectionRef =
-                                  FirebaseFirestore.instance.collection('save');
-                              Query query = collectionRef
-                                  .where('resId', isEqualTo: widget.name)
-                                  .where('userId', isEqualTo: user.userId);
-                              query.get().then((querySnapshot) {
-                                querySnapshot.docs.forEach((doc) {
-                                  doc.reference.delete();
-                                  isSaved = false;
-                                });
-                              }).catchError((error) =>
-                                  print('Error querying documents: $error'));
-                            }
+                            handleButtonPress(user.userId, widget.name);
                           },
                         ),
                       ),
@@ -145,8 +157,6 @@ class _ResScreenState extends State<ResScreen> {
                       final String telephone = item['telephone'];
                       final double longtitude = item['location'].longitude;
                       final double latitude = item['location'].latitude;
-                      String googleUrl =
-                          'https://www.google.com/maps/search/?api=1&query=$latitude,$longtitude';
                       return Column(
                         children: [
                           Container(
@@ -179,7 +189,7 @@ class _ResScreenState extends State<ResScreen> {
                             child: TextButton(
                                 style: OutlinedButton.styleFrom(
                                     padding: EdgeInsets.all(15)),
-                                onPressed: () async {
+                                onPressed: () {
                                   launch("tel:$telephone");
                                 },
                                 child: Row(
@@ -198,11 +208,11 @@ class _ResScreenState extends State<ResScreen> {
                                 style: OutlinedButton.styleFrom(
                                     padding: EdgeInsets.all(15)),
                                 onPressed: () async {
-                                  if (await canLaunch(googleUrl)) {
-                                    await launch(googleUrl);
-                                  } else {
-                                    throw 'Could not open the map.';
-                                  }
+                                  var url =
+                                      "https://www.google.com/maps/search/?api=1&query=$latitude,$longtitude";
+                                  // ignore: deprecated_member_use
+
+                                  await launch(url);
                                 },
                                 child: Row(
                                   children: [

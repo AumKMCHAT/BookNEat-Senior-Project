@@ -21,16 +21,20 @@ class _ResBodyState extends State<ResBody> {
   }
 
   Stream<QuerySnapshot> getDataWithQuery(String newType) {
-    return FirebaseFirestore.instance
-        .collection('restaurants')
-        .where('category', isEqualTo: newType)
-        .snapshots();
+    if (newType == 'All') {
+      return FirebaseFirestore.instance.collection('restaurants').snapshots();
+    } else {
+      return FirebaseFirestore.instance
+          .collection('restaurants')
+          .where('category', isEqualTo: newType)
+          .snapshots();
+    }
   }
 
   void resonButtonPressed(String newType) {
     setState(() {
       type = newType;
-      _isButtonPressed = !_isButtonPressed;
+      _isButtonPressed = true;
     });
   }
 
@@ -40,7 +44,7 @@ class _ResBodyState extends State<ResBody> {
       scrollDirection: Axis.vertical,
       child: Column(
         children: [
-          SearchBox(onChanged: (value) {}),
+          SearchBox(),
           CatagoryItem(
             type: type,
             isButtonPressed: _isButtonPressed,
@@ -60,7 +64,7 @@ class _ResBodyState extends State<ResBody> {
                   .map((doc) => doc.data() as Map<String, dynamic>)
                   .toList();
               return SizedBox(
-                height: 800,
+                height: 600,
                 child: ListView.builder(
                   itemCount: data.length,
                   itemBuilder: (BuildContext context, int index) {

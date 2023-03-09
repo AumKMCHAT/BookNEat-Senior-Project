@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 var category = <String>[
+  'All',
   'Chinese',
   'Asian',
   'Japanese',
