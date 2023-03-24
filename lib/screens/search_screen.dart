@@ -12,6 +12,7 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final _controller = TextEditingController();
   bool _isLoading = false;
+  bool status = true;
   List _searchResults = [];
 
   Future<void> _searchFirestore(String searchText) async {
@@ -30,10 +31,12 @@ class _SearchScreenState extends State<SearchScreen> {
       if (snapshot.docs.isNotEmpty) {
         setState(() {
           _searchResults = snapshot.docs.map((doc) => doc.data()).toList();
+          status = true;
         });
       } else {
         setState(() {
           _searchResults = ['No data found'];
+          status = false;
         });
       }
     } catch (e) {
@@ -88,7 +91,7 @@ class _SearchScreenState extends State<SearchScreen> {
           SizedBox(height: 20),
           _isLoading
               ? CircularProgressIndicator()
-              : _searchResults.isNotEmpty
+              : status
                   ? Expanded(
                       child: ListView.builder(
                         itemCount: _searchResults.length,
@@ -99,12 +102,12 @@ class _SearchScreenState extends State<SearchScreen> {
                           return ResCard(
                               title: result['name'],
                               catagory: result['category'],
-                              status: 'Open',
+                              status: result['status'],
                               photo: [myList[0]]);
                         },
                       ),
                     )
-                  : SizedBox.shrink(),
+                  : Text('No data found'),
         ],
       ),
     );

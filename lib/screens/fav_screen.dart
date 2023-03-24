@@ -21,10 +21,10 @@ class _FavScreenState extends State<FavScreen> {
   @override
   void initState() {
     super.initState();
-    _getUsers();
+    getRes();
   }
 
-  Future<void> _getUsers() async {
+  Future<void> getRes() async {
     String uid = _auth.currentUser!.uid;
     QuerySnapshot snapshot = await _firestore
         .collection('save')
@@ -74,13 +74,13 @@ class _FavScreenState extends State<FavScreen> {
                   child: ListView.builder(
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: (context, index) {
-                      var document = snapshot.data!.docs[index];
+                      var item = snapshot.data!.docs[index];
                       final List<dynamic> myList =
-                          document['photoUrl'] as List<dynamic>;
+                          item['photoUrl'] as List<dynamic>;
                       return ResCard(
-                          title: document['name'],
-                          catagory: document['category'],
-                          status: 'Open',
+                          title: item['name'],
+                          catagory: item['category'],
+                          status: item['status'],
                           photo: [myList[0]]);
                     },
                   ),

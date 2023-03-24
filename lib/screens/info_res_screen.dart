@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:book_n_eat_senior_project/screens/booking_screen.dart';
 import 'package:book_n_eat_senior_project/screens/rating_screen.dart';
+import 'package:book_n_eat_senior_project/screens/review_list_screen.dart';
 import 'package:book_n_eat_senior_project/widgets/res_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +14,6 @@ import 'package:book_n_eat_senior_project/models/user.dart' as model;
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/user_provider.dart';
 import '../widgets/app_bar.dart';
-import 'test_screen.dart';
 
 class ResScreen extends StatefulWidget {
   final String name;
@@ -22,19 +25,37 @@ class ResScreen extends StatefulWidget {
 }
 
 class _ResScreenState extends State<ResScreen> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final firestoreInstance = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference saves =
       FirebaseFirestore.instance.collection('save');
-  bool isSaved = false;
+  bool isSaved = true;
+  double average = 0;
+  List<double> numbers = [];
+
   @override
   void initState() {
     super.initState();
-    addData();
+    getRes();
   }
 
-  addData() async {
-    UserProvider _userProvider = Provider.of(context, listen: false);
-    await _userProvider.refreshUser();
+  Future<void> getRes() async {
+    String uid = _auth.currentUser!.uid;
+    QuerySnapshot querySnapshot = await _firestore
+        .collection('reviews')
+        .where('resId', isEqualTo: widget.name)
+        .get();
+    print(querySnapshot);
+    querySnapshot.docs.forEach((doc) {
+      numbers.add(doc['star']);
+      print(numbers);
+    });
+    average = numbers.isNotEmpty
+        ? numbers.reduce((a, b) => a + b) / numbers.length
+        : 0;
+    print(average);
+    setState(() {});
   }
 
   void handleButtonPress(String user, String restaurant) async {
@@ -62,14 +83,13 @@ class _ResScreenState extends State<ResScreen> {
       setState(() {
         isSaved = !isSaved;
       });
-      print('set');
     }
     // Update the state of the button
   }
 
   @override
   Widget build(BuildContext context) {
-    model.User user = Provider.of<UserProvider>(context).getUser;
+    String uid = _auth.currentUser!.uid;
 
     return Scaffold(
       appBar: homeAppBar(context),
@@ -78,19 +98,37 @@ class _ResScreenState extends State<ResScreen> {
         child: Column(
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 15, 0, 0),
-                    child: Text(widget.name,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                          fontSize: 20,
-                        ))),
+                    padding: const EdgeInsets.fromLTRB(30, 0, 5, 0),
+                    child: Text(
+                      widget.name + '   ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                        fontSize: 20,
+                      ),
+                    )),
+                if (average > 0)
+                  Text(
+                    average.toString(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                      fontSize: 20,
+                    ),
+                  ),
+                if (average > 0)
+                  Icon(
+                    Icons.star,
+                    color: Colors.yellow,
+                  ),
+                // Text(average.toString()),
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('save')
-                      .where('userId', isEqualTo: user.userId)
+                      .where('userId', isEqualTo: uid)
                       .where('resId', isEqualTo: widget.name)
                       .snapshots(),
                   builder: (context, snapshot) {
@@ -99,29 +137,24 @@ class _ResScreenState extends State<ResScreen> {
                       // Loop through the documents in the collection
                       for (DocumentSnapshot doc in snapshot.data!.docs) {
                         // Check if the data that you saved earlier exists in the collection
-                        if (doc.get('userId') == user.userId &&
+                        if (doc.get('userId') == uid &&
                             doc.get('resId') == widget.name) {
-                          // Set isSaved to true
-                          print('success');
-                          // isSaved = true;
-                          isSaved = true;
                         } else {
-                          isSaved = false;
+                          isSaved = !isSaved;
                         }
                       }
                     }
                     return SizedBox(
-                      width: 200,
                       height: 100,
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(130, 5, 0, 0),
+                        padding: EdgeInsets.fromLTRB(50, 0, 20, 0),
                         child: IconButton(
                           iconSize: 30.0,
                           icon: isSaved
                               ? Icon(Icons.favorite)
                               : Icon(Icons.favorite_outline_rounded),
                           onPressed: () async {
-                            handleButtonPress(user.userId, widget.name);
+                            handleButtonPress(uid, widget.name);
                           },
                         ),
                       ),
@@ -236,7 +269,9 @@ class _ResScreenState extends State<ResScreen> {
                                         context,
                                         MaterialPageRoute(
                                             builder: (context) =>
-                                                RatingCommentScreen()));
+                                                ReviewListScreen(
+                                                  resName: widget.name,
+                                                )));
                                   },
                                   child: Row(
                                     children: [
