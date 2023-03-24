@@ -5,7 +5,7 @@ import '../utils/colors.dart';
 class ResCard extends StatelessWidget {
   final String title;
   final String catagory;
-  final String status;
+  final bool status;
   final List<String> photo;
 
   const ResCard({
@@ -52,45 +52,48 @@ class ResCard extends StatelessWidget {
               child: Image(
                 image: NetworkImage(photo[0]),
                 height: 150,
-                width: 200,
+                width: 150,
               ),
             ),
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black,
+            Padding(
+              padding: const EdgeInsets.only(left: 40),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Text(
-                    catagory,
-                  ),
-                ),
-                if (status == 'Open') ...[
-                  Text(
-                    status,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.green,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      catagory,
                     ),
                   ),
-                ] else if (status == 'Close') ...[
-                  Text(
-                    status,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: Colors.red,
+                  if (status == true) ...[
+                    Text(
+                      "Open",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.green,
+                      ),
                     ),
-                  ),
-                ]
-              ],
+                  ] else if (status == false) ...[
+                    Text(
+                      'Close',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: Colors.red,
+                      ),
+                    ),
+                  ]
+                ],
+              ),
             ),
           ],
         ),

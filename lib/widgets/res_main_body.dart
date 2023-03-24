@@ -74,7 +74,7 @@ class _ResBodyState extends State<ResBody> {
                     return ResCard(
                         title: item['name'],
                         catagory: item['category'],
-                        status: 'Open',
+                        status: item['status'],
                         photo: [myList[0]]);
                   },
                 ),
