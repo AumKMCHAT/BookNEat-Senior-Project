@@ -30,17 +30,38 @@ class _ResScreenState extends State<ResScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference saves =
       FirebaseFirestore.instance.collection('save');
-  bool isSaved = true;
+  bool isSaved = false;
   double average = 0;
   List<double> numbers = [];
+  List<String> saveRes = [''];
 
   @override
   void initState() {
     super.initState();
+    getRating();
     getRes();
   }
 
   Future<void> getRes() async {
+    String uid = _auth.currentUser!.uid;
+    QuerySnapshot snapshot = await _firestore
+        .collection('save')
+        .where('resId', isEqualTo: widget.name)
+        .get();
+    List<Map<String, dynamic>> data =
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    List<String> resnames =
+        data.map((item) => item['resId'] as String).toList();
+    setState(() {
+      saveRes = resnames;
+      if (saveRes[0] == widget.name) {
+        isSaved = !isSaved;
+      }
+    });
+    print(isSaved);
+  }
+
+  Future<void> getRating() async {
     String uid = _auth.currentUser!.uid;
     QuerySnapshot querySnapshot = await _firestore
         .collection('reviews')
@@ -49,7 +70,6 @@ class _ResScreenState extends State<ResScreen> {
     print(querySnapshot);
     querySnapshot.docs.forEach((doc) {
       numbers.add(doc['star']);
-      print(numbers);
     });
     average = numbers.isNotEmpty
         ? numbers.reduce((a, b) => a + b) / numbers.length
@@ -125,41 +145,21 @@ class _ResScreenState extends State<ResScreen> {
                     color: Colors.yellow,
                   ),
                 // Text(average.toString()),
-                StreamBuilder<QuerySnapshot>(
-                  stream: FirebaseFirestore.instance
-                      .collection('save')
-                      .where('userId', isEqualTo: uid)
-                      .where('resId', isEqualTo: widget.name)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    // Check if there's data in the collection
-                    if (snapshot.hasData) {
-                      // Loop through the documents in the collection
-                      for (DocumentSnapshot doc in snapshot.data!.docs) {
-                        // Check if the data that you saved earlier exists in the collection
-                        if (doc.get('userId') == uid &&
-                            doc.get('resId') == widget.name) {
-                        } else {
-                          isSaved = !isSaved;
-                        }
-                      }
-                    }
-                    return SizedBox(
-                      height: 100,
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(50, 0, 20, 0),
-                        child: IconButton(
-                          iconSize: 30.0,
-                          icon: isSaved
-                              ? Icon(Icons.favorite)
-                              : Icon(Icons.favorite_outline_rounded),
-                          onPressed: () async {
-                            handleButtonPress(uid, widget.name);
-                          },
-                        ),
-                      ),
-                    );
-                  },
+
+                SizedBox(
+                  height: 100,
+                  child: Padding(
+                    padding: EdgeInsets.fromLTRB(50, 0, 20, 0),
+                    child: IconButton(
+                      iconSize: 30.0,
+                      icon: isSaved
+                          ? Icon(Icons.favorite)
+                          : Icon(Icons.favorite_outline_rounded),
+                      onPressed: () async {
+                        handleButtonPress(uid, widget.name);
+                      },
+                    ),
+                  ),
                 )
               ],
             ),
