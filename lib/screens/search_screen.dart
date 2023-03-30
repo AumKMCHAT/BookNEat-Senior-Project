@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import '../widgets/app_bar.dart';
-import '../widgets/res_card.dart';
+import 'package:book_n_eat_senior_project/widgets/app_bar.dart';
+import 'package:book_n_eat_senior_project/widgets/res_card.dart';
 
 class SearchScreen extends StatefulWidget {
   @override

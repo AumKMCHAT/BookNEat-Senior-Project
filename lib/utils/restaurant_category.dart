@@ -28,3 +28,9 @@ var category = <String>[
   'Vegan',
   'Latin American'
 ];
+
+const String statusPending = "Pending";
+const String statusConfirmed = "Confirmed";
+const String statusCompleted = "Completed";
+const String statusReviewed = "Reviewed";
+const String statusCanceled = "Canceled";

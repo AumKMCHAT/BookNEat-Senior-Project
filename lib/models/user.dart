@@ -6,6 +6,7 @@ class User {
   final String firstName;
   final String lastName;
   final String role;
+  final String telephone;
   final String photoUrl;
 
   const User({
@@ -14,6 +15,7 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.role,
+    required this.telephone,
     required this.photoUrl,
   });
 
@@ -23,6 +25,7 @@ class User {
         "firstName": firstName,
         "lastName": lastName,
         "role": role,
+        "telephone": telephone,
         "photoUrl": photoUrl
       };
 
@@ -35,6 +38,7 @@ class User {
         firstName: snapshot['firstName'],
         lastName: snapshot['lastName'],
         role: snapshot['role'],
+        telephone: snapshot['telephone'],
         photoUrl: snapshot['photoUrl']);
   }
 }

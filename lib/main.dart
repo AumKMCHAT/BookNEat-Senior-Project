@@ -1,5 +1,4 @@
 import 'package:book_n_eat_senior_project/providers/user_provider.dart';
-import 'package:book_n_eat_senior_project/screens/home_screen.dart';
 import 'package:book_n_eat_senior_project/screens/login_screen.dart';
 import 'package:book_n_eat_senior_project/screens/res_main_screen.dart';
 import 'package:book_n_eat_senior_project/screens/search_screen.dart';
