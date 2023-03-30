@@ -22,13 +22,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<String> status = [''];
+  String name = '';
+  String role = '';
+  String photoUrl = '';
+
   bool resStatus = true;
 
   @override
   void initState() {
     super.initState();
-    addData();
+    // addData();
     getStatus();
+    getUser();
   }
 
   Future<void> getStatus() async {
@@ -43,14 +48,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
         data.map((item) => item['status'].toString() as String).toList();
     setState(() {
       this.status = resnames;
-      if (resnames[0] == true) resStatus = false;
-      if (resnames[0] == false) resStatus = true;
+      print(this.status[0]);
+      if (this.status[0] == 'true') {
+        this.resStatus = false;
+      } else if (this.status[0] == 'false') {
+        this.resStatus = true;
+      }
     });
   }
 
-  addData() async {
-    UserProvider _userProvider = Provider.of(context, listen: false);
-    await _userProvider.refreshUser();
+  Future<void> getUser() async {
+    String uid = _auth.currentUser!.uid;
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('userId', isEqualTo: uid)
+        .get();
+    QueryDocumentSnapshot snapshot = querySnapshot.docs[0];
+    setState(() {
+      this.name = snapshot.get('firstName') + '  ' + snapshot.get('lastName');
+      this.role = snapshot.get('role');
+      this.photoUrl = snapshot.get('photoUrl');
+    });
   }
 
   signOut(BuildContext context) async {
@@ -61,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userCheck = context.watch<User?>();
+    String uid = _auth.currentUser!.uid;
     return Scaffold(
       body: FutureBuilder(
           future: Future.delayed(Duration(seconds: 2)),
@@ -70,32 +88,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
               return Center(
                   child: Container(child: CircularProgressIndicator()));
             }
-
-            if (userCheck == null) {
-              model.User user = Provider.of<UserProvider>(context).getUser;
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 40, 0, 20),
-                      child: Center(
-                        child: CircleAvatar(
-                          backgroundImage: NetworkImage(user.photoUrl),
-                          radius: 70,
-                        ),
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 40, 0, 20),
+                    child: Center(
+                      child: CircleAvatar(
+                        backgroundImage: NetworkImage(photoUrl),
+                        radius: 70,
                       ),
                     ),
-                    SizedBox(
-                      height: 20,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 25.0,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
                     ),
-                    Text(
-                      user.firstName + '  ' + user.lastName,
-                      style: TextStyle(
-                        fontSize: 25.0,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(60, 20, 10, 0),
+                    child: SizedBox(
+                      width: 300,
+                      child: TextButton(
+                          style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.all(20)),
+                          onPressed: () {
+                            if (role == 'customer') {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          SignupRestaurantScreen()));
+                            } else if (role == 'restaurant') {}
+                          },
+                          child: Row(
+                            children: [
+                              if (role == 'customer')
+                                Icon(
+                                  Icons.storefront,
+                                  size: 30.0,
+                                ),
+                              if (role == 'customer')
+                                Text(
+                                  "          Create Restaurant",
+                                  style: TextStyle(fontSize: 16),
+                                )
+                            ],
+                          )),
                     ),
+                  ),
+                  if (role == 'restaurant')
                     Padding(
                       padding: const EdgeInsets.fromLTRB(60, 20, 10, 0),
                       child: SizedBox(
@@ -104,181 +152,146 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             style: OutlinedButton.styleFrom(
                                 padding: EdgeInsets.all(20)),
                             onPressed: () {
-                              if (user.role == 'customer') {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            SignupRestaurantScreen()));
-                              } else if (user.role == 'restaurant') {}
-                            },
-                            child: Row(
-                              children: [
-                                if (user.role == 'customer')
-                                  Icon(
-                                    Icons.storefront,
-                                    size: 30.0,
-                                  ),
-                                if (user.role == 'customer')
-                                  Text(
-                                    "          Create Restaurant",
-                                    style: TextStyle(fontSize: 16),
-                                  )
-                              ],
-                            )),
-                      ),
-                    ),
-                    if (user.role == 'restaurant')
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(60, 20, 10, 0),
-                        child: SizedBox(
-                          width: 300,
-                          child: TextButton(
-                              style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.all(20)),
-                              onPressed: () {
-                                showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return DialogBoxEditMenu(
-                                        onCancel: () =>
-                                            Navigator.of(context).pop(),
-                                      );
-                                    });
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.settings,
-                                    size: 30.0,
-                                  ),
-                                  Text(
-                                    "          Edit Menu",
-                                    style: TextStyle(fontSize: 18),
-                                  )
-                                ],
-                              )),
-                        ),
-                      ),
-                    if (user.role == 'restaurant')
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(60, 20, 10, 0),
-                        child: SizedBox(
-                          width: 300,
-                          child: TextButton(
-                              style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.all(20)),
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => OrderScreen()));
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.menu_book_outlined,
-                                    size: 30.0,
-                                  ),
-                                  Text(
-                                    "          Order",
-                                    style: TextStyle(fontSize: 18),
-                                  )
-                                ],
-                              )),
-                        ),
-                      ),
-                    if (user.role == 'restaurant')
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(60, 20, 10, 0),
-                        child: SizedBox(
-                          width: 300,
-                          child: TextButton(
-                              style: OutlinedButton.styleFrom(
-                                  padding: EdgeInsets.all(20)),
-                              onPressed: () {
-                                CollectionReference collectionRef =
-                                    FirebaseFirestore.instance
-                                        .collection('restaurants');
-                                Query query = collectionRef.where('userId',
-                                    isEqualTo: user.userId);
-                                if (resStatus == true)
-                                  // ignore: curly_braces_in_flow_control_structures
-                                  query.get().then((querySnapshot) {
-                                    querySnapshot.docs.forEach((doc) {
-                                      doc.reference
-                                          .update({'status': false})
-                                          .then((value) => print(
-                                              "Field updated successfully!"))
-                                          .catchError((error) => print(
-                                              "Failed to update field: $error"));
-                                    });
+                              showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return DialogBoxEditMenu(
+                                      onCancel: () =>
+                                          Navigator.of(context).pop(),
+                                    );
                                   });
-                                if (resStatus == false)
-                                  // ignore: curly_braces_in_flow_control_structures
-                                  query.get().then((querySnapshot) {
-                                    querySnapshot.docs.forEach((doc) {
-                                      doc.reference
-                                          .update({'status': true})
-                                          .then((value) => print(
-                                              "Field updated successfully!"))
-                                          .catchError((error) => print(
-                                              "Failed to update field: $error"));
-                                    });
-                                  });
-                                setState(() {
-                                  resStatus = !resStatus;
-                                });
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.pause_circle_outline_rounded,
-                                    size: 30.0,
-                                  ),
-                                  if (resStatus == true)
-                                    Text(
-                                      "          Close Restaurant",
-                                      style: TextStyle(fontSize: 18),
-                                    ),
-                                  if (resStatus == false)
-                                    Text(
-                                      "          Open Restaurant",
-                                      style: TextStyle(fontSize: 18),
-                                    )
-                                ],
-                              )),
-                        ),
-                      ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(15, 20, 10, 20),
-                      child: SizedBox(
-                        width: 250,
-                        child: TextButton(
-                            style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.all(20)),
-                            onPressed: () {
-                              signOut(context);
                             },
                             child: Row(
                               children: [
                                 Icon(
-                                  Icons.logout,
+                                  Icons.settings,
                                   size: 30.0,
                                 ),
                                 Text(
-                                  "          Logout",
+                                  "          Edit Menu",
                                   style: TextStyle(fontSize: 18),
                                 )
                               ],
                             )),
                       ),
-                    )
-                  ],
-                ),
-              );
-            }
-            return Text('User data is not available');
+                    ),
+                  if (role == 'restaurant')
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(60, 20, 10, 0),
+                      child: SizedBox(
+                        width: 300,
+                        child: TextButton(
+                            style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.all(20)),
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => OrderScreen()));
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.menu_book_outlined,
+                                  size: 30.0,
+                                ),
+                                Text(
+                                  "          Order",
+                                  style: TextStyle(fontSize: 18),
+                                )
+                              ],
+                            )),
+                      ),
+                    ),
+                  if (role == 'restaurant')
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(60, 20, 10, 0),
+                      child: SizedBox(
+                        width: 300,
+                        child: TextButton(
+                            style: OutlinedButton.styleFrom(
+                                padding: EdgeInsets.all(20)),
+                            onPressed: () {
+                              CollectionReference collectionRef =
+                                  FirebaseFirestore.instance
+                                      .collection('restaurants');
+                              Query query =
+                                  collectionRef.where('userId', isEqualTo: uid);
+                              if (resStatus == true)
+                                // ignore: curly_braces_in_flow_control_structures
+                                query.get().then((querySnapshot) {
+                                  querySnapshot.docs.forEach((doc) {
+                                    doc.reference
+                                        .update({'status': false})
+                                        .then((value) => print(
+                                            "Field updated successfully!"))
+                                        .catchError((error) => print(
+                                            "Failed to update field: $error"));
+                                  });
+                                });
+                              if (resStatus == false)
+                                // ignore: curly_braces_in_flow_control_structures
+                                query.get().then((querySnapshot) {
+                                  querySnapshot.docs.forEach((doc) {
+                                    doc.reference
+                                        .update({'status': true})
+                                        .then((value) => print(
+                                            "Field updated successfully!"))
+                                        .catchError((error) => print(
+                                            "Failed to update field: $error"));
+                                  });
+                                });
+                              setState(() {
+                                resStatus = !resStatus;
+                              });
+                            },
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.pause_circle_outline_rounded,
+                                  size: 30.0,
+                                ),
+                                if (resStatus == false) ...[
+                                  Text(
+                                    "          Close Restaurant",
+                                    style: TextStyle(fontSize: 18),
+                                  ),
+                                ] else if (resStatus == true)
+                                  Text(
+                                    "          Open Restaurant",
+                                    style: TextStyle(fontSize: 18),
+                                  )
+                              ],
+                            )),
+                      ),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 20, 10, 20),
+                    child: SizedBox(
+                      width: 250,
+                      child: TextButton(
+                          style: OutlinedButton.styleFrom(
+                              padding: EdgeInsets.all(20)),
+                          onPressed: () {
+                            signOut(context);
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.logout,
+                                size: 30.0,
+                              ),
+                              Text(
+                                "          Logout",
+                                style: TextStyle(fontSize: 18),
+                              )
+                            ],
+                          )),
+                    ),
+                  )
+                ],
+              ),
+            );
           }),
     );
   }

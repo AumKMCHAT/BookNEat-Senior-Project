@@ -20,7 +20,7 @@ class _ResBodyState extends State<ResBody> {
   @override
   void initState() {
     super.initState();
-    updateStatusRes();
+    // updateStatusRes();
   }
 
   Future<void> updateStatusRes() async {

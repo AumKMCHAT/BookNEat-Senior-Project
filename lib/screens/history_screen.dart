@@ -55,9 +55,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       String dateString =
                           DateFormat('dd.MM.yyyy  hh:mm aaa').format(dateTime);
                       return HistoryItem(
-                          resName: item['resId'],
-                          date: dateString,
-                          status: item['status']);
+                        resName: item['resId'],
+                        date: dateString,
+                        status: item['status'],
+                        bookingTimestamp: timestamp,
+                      );
                     }),
               );
             }),

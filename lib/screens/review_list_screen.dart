@@ -41,7 +41,7 @@ class _ReviewListScreenState extends State<ReviewListScreen> {
             }
 
             return SizedBox(
-              height: 200,
+              height: 700,
               child: ListView.builder(
                 itemCount: snapshot.data!.docs.length,
                 itemBuilder: (context, index) {

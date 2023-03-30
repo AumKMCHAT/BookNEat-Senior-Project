@@ -1,5 +1,5 @@
+import 'package:book_n_eat_senior_project/screens/profile_screen.dart';
 import 'package:book_n_eat_senior_project/screens/res_main_screen.dart';
-import 'package:book_n_eat_senior_project/utils/restaurant_category.dart';
 import 'package:book_n_eat_senior_project/widgets/app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../utils/colors.dart';
+import '../utils/restaurant_category.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -19,35 +20,34 @@ class _OrderScreenState extends State<OrderScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   List<String> resnames = [''];
+  String resName = '';
 
   @override
   void initState() {
     super.initState();
-    getRes();
+    getResName();
   }
 
-  Future<void> getRes() async {
+  Future<void> getResName() async {
     String uid = _auth.currentUser!.uid;
-    QuerySnapshot snapshot = await _firestore
+    QuerySnapshot querySnapshot = await _firestore
         .collection('restaurants')
         .where('userId', isEqualTo: uid)
         .get();
-    List<Map<String, dynamic>> data =
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-    List<String> resnames =
-        data.map((item) => item['resId'] as String).toList();
+    QueryDocumentSnapshot snapshot = querySnapshot.docs[0];
+
     setState(() {
-      this.resnames = resnames;
+      this.resName = snapshot.get('resId');
+      print(resName);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     String uid = _auth.currentUser!.uid;
-    int count = 0;
+
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Text(
           'Book n Eat',
@@ -80,7 +80,6 @@ class _OrderScreenState extends State<OrderScreen> {
             stream: FirebaseFirestore.instance
                 .collection('reservations')
                 .where('status', isNotEqualTo: statusReviewed)
-                .where('resId', whereIn: resnames)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
@@ -92,7 +91,7 @@ class _OrderScreenState extends State<OrderScreen> {
               }
 
               return SizedBox(
-                height: 600,
+                height: 700,
                 child: ListView.builder(
                   itemCount: snapshot.data!.docs.length,
                   itemBuilder: (context, index) {
@@ -100,129 +99,164 @@ class _OrderScreenState extends State<OrderScreen> {
                     Timestamp timestamp = item['bookingDate'];
                     DateTime dateTime = timestamp.toDate().toLocal();
                     String dateString =
-                        DateFormat('dd.MM.yyyy  hh:mm aaa').format(dateTime);
-                    return ListTile(
-                      title: Padding(
-                        padding:
-                            const EdgeInsets.only(left: 0, bottom: 20, top: 10),
-                        child: Text(
-                          dateString,
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue),
-                        ),
-                      ),
-                      subtitle: Row(
-                        children: [
-                          Text(
-                            'request: ' + item['request'],
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 30),
-                            child: Text(item['quantity'].toString() + ' คน'),
-                          )
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (item['status'] == statusPending)
-                            ElevatedButton(
-                                onPressed: () {
-                                  CollectionReference collectionRef =
-                                      FirebaseFirestore.instance
-                                          .collection('reservations');
-
-                                  Query query = collectionRef
-                                      .where('resId', isEqualTo: item['resId'])
-                                      .where('bookingDate',
-                                          isEqualTo: item['bookingDate'])
-                                      .where('userId',
-                                          isEqualTo: item['userId']);
-                                  query.get().then((querySnapshot) {
-                                    querySnapshot.docs.forEach((doc) {
-                                      doc.reference
-                                          .update({'status': 'Confirmed'})
-                                          .then((value) => print(
-                                              "Field updated successfully!"))
-                                          .catchError((error) => print(
-                                              "Failed to update field: $error"));
-                                    });
-                                  });
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => OrderScreen()));
-                                },
-                                child: Text('Accept')),
-                            SizedBox(
-                              width: 3,
-                            ),
-                            ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors
-                                      .red, // set the button's background color
+                        DateFormat('dd-MM-yyyy  hh:mm aaa').format(dateTime);
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SizedBox(
+                        height: 180,
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Padding(
+                                padding: const EdgeInsets.only(
+                                    left: 0, bottom: 20, top: 10),
+                                child: Text(
+                                  dateString,
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue),
                                 ),
-                                onPressed: () {
-                                  CollectionReference collectionRef =
-                                      FirebaseFirestore.instance
-                                          .collection('reservations');
+                              ),
+                              subtitle: Align(
+                                alignment: Alignment.topLeft,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'request: ' + item['request'],
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text('Quantity: ' +
+                                        item['quantity'].toString() +
+                                        ' คน'),
+                                    SizedBox(
+                                      height: 10,
+                                    )
+                                  ],
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (item['status'] == statusPending) ...[
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          CollectionReference collectionRef =
+                                              FirebaseFirestore.instance
+                                                  .collection('reservations');
 
-                                  Query query = collectionRef
-                                      .where('resId', isEqualTo: item['resId'])
-                                      .where('bookingDate',
-                                          isEqualTo: item['bookingDate'])
-                                      .where('userId',
-                                          isEqualTo: item['userId']);
-                                  query.get().then((querySnapshot) {
-                                    querySnapshot.docs.forEach((doc) {
-                                      doc.reference
-                                          .update({'status': statusReviewed})
-                                          .then((value) => print(
-                                              "Field updated successfully!"))
-                                          .catchError((error) => print(
-                                              "Failed to update field: $error"));
-                                    });
-                                  });
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => OrderScreen()));
-                                },
-                                child: Text('Cancel')),
+                                          Query query = collectionRef
+                                              .where('resId',
+                                                  isEqualTo: item['resId'])
+                                              .where('bookingDate',
+                                                  isEqualTo:
+                                                      item['bookingDate'])
+                                              .where('userId',
+                                                  isEqualTo: item['userId']);
+                                          query.get().then((querySnapshot) {
+                                            querySnapshot.docs.forEach((doc) {
+                                              doc.reference
+                                                  .update({
+                                                    'status': statusConfirmed
+                                                  })
+                                                  .then((value) => print(
+                                                      "Field updated successfully!"))
+                                                  .catchError((error) => print(
+                                                      "Failed to update field: $error"));
+                                            });
+                                          });
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      OrderScreen()));
+                                        },
+                                        child: Text('Accept')),
+                                    SizedBox(
+                                      width: 3,
+                                    ),
+                                    ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          primary: Colors
+                                              .red, // set the button's background color
+                                        ),
+                                        onPressed: () {
+                                          CollectionReference collectionRef =
+                                              FirebaseFirestore.instance
+                                                  .collection('reservations');
+
+                                          Query query = collectionRef
+                                              .where('resId',
+                                                  isEqualTo: item['resId'])
+                                              .where('bookingDate',
+                                                  isEqualTo:
+                                                      item['bookingDate'])
+                                              .where('userId',
+                                                  isEqualTo: item['userId']);
+                                          query.get().then((querySnapshot) {
+                                            querySnapshot.docs.forEach((doc) {
+                                              doc.reference
+                                                  .update({
+                                                    'status': statusCanceled
+                                                  })
+                                                  .then((value) => print(
+                                                      "Field updated successfully!"))
+                                                  .catchError((error) => print(
+                                                      "Failed to update field: $error"));
+                                            });
+                                          });
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      OrderScreen()));
+                                        },
+                                        child: Text('Cancel')),
+                                  ],
+                                  if (item['status'] == statusCompleted)
+                                    ElevatedButton(
+                                        onPressed: () {
+                                          CollectionReference collectionRef =
+                                              FirebaseFirestore.instance
+                                                  .collection('reservations');
+
+                                          Query query = collectionRef
+                                              .where('resId',
+                                                  isEqualTo: item['resId'])
+                                              .where('bookingDate',
+                                                  isEqualTo:
+                                                      item['bookingDate'])
+                                              .where('userId',
+                                                  isEqualTo: item['userId']);
+                                          query.get().then((querySnapshot) {
+                                            querySnapshot.docs.forEach((doc) {
+                                              doc.reference
+                                                  .update({
+                                                    'status': statusReviewed
+                                                  })
+                                                  .then((value) => print(
+                                                      "Field updated successfully!"))
+                                                  .catchError((error) => print(
+                                                      "Failed to update field: $error"));
+                                            });
+                                          });
+                                          Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      OrderScreen()));
+                                        },
+                                        child: Text('Success'))
+                                ],
+                              ),
+                            ),
+                            const Divider(color: Colors.grey, thickness: 1),
                           ],
-                          if (item['status'] == 'Confirmed')
-                            ElevatedButton(
-                                onPressed: () {
-                                  CollectionReference collectionRef =
-                                      FirebaseFirestore.instance
-                                          .collection('reservations');
-
-                                  Query query = collectionRef
-                                      .where('resId', isEqualTo: item['resId'])
-                                      .where('bookingDate',
-                                          isEqualTo: item['bookingDate'])
-                                      .where('userId',
-                                          isEqualTo: item['userId']);
-                                  query.get().then((querySnapshot) {
-                                    querySnapshot.docs.forEach((doc) {
-                                      doc.reference
-                                          .update({'status': 'Completed'})
-                                          .then((value) => print(
-                                              "Field updated successfully!"))
-                                          .catchError((error) => print(
-                                              "Failed to update field: $error"));
-                                    });
-                                  });
-                                  setState(() {
-                                    count++;
-                                  });
-                                },
-                                child: Text('Success'))
-                        ],
+                        ),
                       ),
                     );
                   },

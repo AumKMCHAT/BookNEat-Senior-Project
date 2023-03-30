@@ -43,11 +43,15 @@ class BookingScreenState extends State<BookingScreen> {
 
   int _selectedIndex = 0;
 
+  String phoneNumber = '';
+  String name = '';
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     getMaxPeople();
+    getUserData();
     Timer(const Duration(seconds: 2), () {
       setState(() {
         _isLoading = false;
@@ -132,13 +136,25 @@ class BookingScreenState extends State<BookingScreen> {
     });
   }
 
+  Future<void> getUserData() async {
+    String uid = _auth.currentUser!.uid;
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .where('userId', isEqualTo: uid)
+        .get();
+    QueryDocumentSnapshot snapshot = querySnapshot.docs[0];
+    setState(() {
+      this.name = snapshot.get('firstName') + '  ' + snapshot.get('lastName');
+      this.phoneNumber = snapshot.get('telephone');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final inputBorder =
         OutlineInputBorder(borderSide: Divider.createBorderSide(context));
     getWorkMinute();
     getSlotTime();
-    final userCheck = context.watch<User?>();
     return Scaffold(
         appBar: homeAppBar(context),
         body: FutureBuilder(
@@ -148,211 +164,205 @@ class BookingScreenState extends State<BookingScreen> {
                 return Center(
                     child: Container(child: CircularProgressIndicator()));
               }
-
-              if (userCheck == null) {
-                model.User user = Provider.of<UserProvider>(context).getUser;
-                return Center(
-                  child: Container(
-                    width: 400,
-                    child: Column(
-                      children: [
-                        _isLoading
-                            ? const SizedBox(
-                                height: 50,
-                                child: CircularProgressIndicator(
-                                  color: Colors.black,
-                                ),
-                              )
-                            : const Text(
-                                "Booking details",
-                                style: TextStyle(fontSize: 30),
+              return Center(
+                child: Container(
+                  width: 400,
+                  child: Column(
+                    children: [
+                      _isLoading
+                          ? const SizedBox(
+                              height: 50,
+                              child: CircularProgressIndicator(
+                                color: Colors.black,
                               ),
-                        Row(
-                          children: [
-                            const Text(
-                              "A Table for :   ",
-                              style: TextStyle(fontSize: 20),
+                            )
+                          : const Text(
+                              "Booking details",
+                              style: TextStyle(fontSize: 30),
                             ),
-                            DropdownButton(
-                              value: _people,
-                              icon: const Icon(Icons.keyboard_arrow_down),
-                              items: peoples.map((int items) {
-                                return DropdownMenuItem(
-                                  value: items,
-                                  child: Text(items.toString()),
-                                );
-                              }).toList(),
-                              onChanged: (int? newValue) {
-                                setState(() {
-                                  _people = newValue!;
-                                });
-                              },
-                            ),
-                            const Text(
-                              "   People",
-                              style: TextStyle(fontSize: 20),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        Container(
-                            alignment: Alignment.topLeft,
-                            child: const Text(
-                              "Select Date",
-                              style: TextStyle(fontSize: 20),
-                            )),
-                        TextField(
-                            controller:
-                                _dateController, //editing controller of this TextField
-                            decoration: const InputDecoration(
-                                icon: Icon(
-                                    Icons.calendar_today), //icon of text field
-                                labelText: "Enter Date" //label text of field
-                                ),
-                            readOnly: true, // when true user cannot edit text
-                            onTap: () async {
-                              DateTime? pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate:
-                                      DateTime.now(), //get today's date
-                                  firstDate: DateTime(
-                                      2000), //DateTime.now() - not to allow to choose before today.
-                                  lastDate: DateTime(2101));
-
-                              if (pickedDate != null) {
-                                Timestamp timestampPickedDate =
-                                    Timestamp.fromDate(pickedDate);
-                                String formattedDate =
-                                    DateFormat('yyyy-MM-dd').format(pickedDate);
-
-                                setState(() {
-                                  _dateTimeStamp = timestampPickedDate;
-                                  _dateController.text = formattedDate;
-                                });
-                              } else {
-                                print("Date is not selected");
-                              }
-                            }),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        Container(
-                            alignment: Alignment.topLeft,
-                            child: const Text(
-                              "Select Time",
-                              style: TextStyle(fontSize: 20),
-                            )),
-                        SizedBox(
-                          height: 50,
-                          child: ListView.builder(
-                            itemCount: slot,
-                            itemBuilder: (context, index) => Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: ElevatedButton(
-                                onPressed: () => selectTime(index),
-                                style: ButtonStyle(
-                                  backgroundColor: (_selectedIndex != index)
-                                      ? MaterialStateProperty.all<Color>(
-                                          Colors.white)
-                                      : MaterialStateProperty.all<Color>(
-                                          Colors.blue),
-                                  foregroundColor: (_selectedIndex != index)
-                                      ? MaterialStateProperty.all<Color>(
-                                          Colors.blue)
-                                      : MaterialStateProperty.all<Color>(
-                                          Colors.white),
-                                ),
-                                child: (aviableTime[index]
-                                            .minute
-                                            .toString()
-                                            .length ==
-                                        1)
-                                    ? Text(
-                                        "${aviableTime[index].hour}:0${aviableTime[index].minute}")
-                                    : Text(
-                                        "${aviableTime[index].hour}:${aviableTime[index].minute}"),
-                              ),
-                            ),
-                            scrollDirection: Axis.horizontal,
+                      Row(
+                        children: [
+                          const Text(
+                            "A Table for :   ",
+                            style: TextStyle(fontSize: 20),
                           ),
-                        ),
-                        const SizedBox(
-                          height: 16,
-                        ),
-                        Container(
-                            alignment: Alignment.topLeft,
-                            child: const Text(
-                              "Contact Details",
-                              style: TextStyle(fontSize: 20),
-                            )),
-                        Container(
-                            alignment: Alignment.topLeft,
-                            padding: const EdgeInsets.only(top: 12),
-                            child: Text(
-                              "Name: ${user.firstName} ${user.lastName}",
-                              style: const TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            )),
-                        Container(
-                            padding: const EdgeInsets.only(top: 12),
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              "Telephone: ${user.telephone}",
-                              style: const TextStyle(
-                                  fontSize: 15, fontWeight: FontWeight.bold),
-                            )),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        const Text(
-                          "Special Requests",
-                          style: TextStyle(fontSize: 20),
-                        ),
-                        const SizedBox(
-                          height: 24,
-                        ),
-                        TextFormField(
-                          controller: _requestController,
-                          decoration: InputDecoration(
-                              hintText: "Ex: Can i get a table near window?",
-                              border: inputBorder,
-                              focusedBorder: inputBorder,
-                              enabledBorder: inputBorder,
-                              filled: true,
-                              contentPadding: const EdgeInsets.all(8)),
-                          keyboardType: TextInputType.text,
-                          obscureText: false,
-                          maxLines: 5,
-                        ),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        InkWell(
-                          onTap: onBooking,
-                          child: Container(
-                            width: 250,
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: const ShapeDecoration(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(15)),
-                                ),
-                                color: Colors.blue),
-                            child: const Text(
-                              'Book Now',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 15),
+                          DropdownButton(
+                            value: _people,
+                            icon: const Icon(Icons.keyboard_arrow_down),
+                            items: peoples.map((int items) {
+                              return DropdownMenuItem(
+                                value: items,
+                                child: Text(items.toString()),
+                              );
+                            }).toList(),
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                _people = newValue!;
+                              });
+                            },
+                          ),
+                          const Text(
+                            "   People",
+                            style: TextStyle(fontSize: 20),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 24,
+                      ),
+                      Container(
+                          alignment: Alignment.topLeft,
+                          child: const Text(
+                            "Select Date",
+                            style: TextStyle(fontSize: 20),
+                          )),
+                      TextField(
+                          controller:
+                              _dateController, //editing controller of this TextField
+                          decoration: const InputDecoration(
+                              icon: Icon(
+                                  Icons.calendar_today), //icon of text field
+                              labelText: "Enter Date" //label text of field
+                              ),
+                          readOnly: true, // when true user cannot edit text
+                          onTap: () async {
+                            DateTime? pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(), //get today's date
+                                firstDate: DateTime(
+                                    2000), //DateTime.now() - not to allow to choose before today.
+                                lastDate: DateTime(2101));
+
+                            if (pickedDate != null) {
+                              Timestamp timestampPickedDate =
+                                  Timestamp.fromDate(pickedDate);
+                              String formattedDate =
+                                  DateFormat('yyyy-MM-dd').format(pickedDate);
+
+                              setState(() {
+                                _dateTimeStamp = timestampPickedDate;
+                                _dateController.text = formattedDate;
+                              });
+                            } else {
+                              print("Date is not selected");
+                            }
+                          }),
+                      const SizedBox(
+                        height: 24,
+                      ),
+                      Container(
+                          alignment: Alignment.topLeft,
+                          child: const Text(
+                            "Select Time",
+                            style: TextStyle(fontSize: 20),
+                          )),
+                      SizedBox(
+                        height: 50,
+                        child: ListView.builder(
+                          itemCount: slot,
+                          itemBuilder: (context, index) => Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ElevatedButton(
+                              onPressed: () => selectTime(index),
+                              style: ButtonStyle(
+                                backgroundColor: (_selectedIndex != index)
+                                    ? MaterialStateProperty.all<Color>(
+                                        Colors.white)
+                                    : MaterialStateProperty.all<Color>(
+                                        Colors.blue),
+                                foregroundColor: (_selectedIndex != index)
+                                    ? MaterialStateProperty.all<Color>(
+                                        Colors.blue)
+                                    : MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                              ),
+                              child: (aviableTime[index]
+                                          .minute
+                                          .toString()
+                                          .length ==
+                                      1)
+                                  ? Text(
+                                      "${aviableTime[index].hour}:0${aviableTime[index].minute}")
+                                  : Text(
+                                      "${aviableTime[index].hour}:${aviableTime[index].minute}"),
                             ),
                           ),
+                          scrollDirection: Axis.horizontal,
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      Container(
+                          alignment: Alignment.topLeft,
+                          child: const Text(
+                            "Contact Details",
+                            style: TextStyle(fontSize: 20),
+                          )),
+                      Container(
+                          alignment: Alignment.topLeft,
+                          padding: const EdgeInsets.only(top: 12),
+                          child: Text(
+                            "Name: ${name}",
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.bold),
+                          )),
+                      Container(
+                          padding: const EdgeInsets.only(top: 12),
+                          alignment: Alignment.topLeft,
+                          child: Text(
+                            "Telephone: ${phoneNumber}",
+                            style: const TextStyle(
+                                fontSize: 15, fontWeight: FontWeight.bold),
+                          )),
+                      const SizedBox(
+                        height: 24,
+                      ),
+                      const Text(
+                        "Special Requests",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      const SizedBox(
+                        height: 24,
+                      ),
+                      TextFormField(
+                        controller: _requestController,
+                        decoration: InputDecoration(
+                            hintText: "Ex: Can i get a table near window?",
+                            border: inputBorder,
+                            focusedBorder: inputBorder,
+                            enabledBorder: inputBorder,
+                            filled: true,
+                            contentPadding: const EdgeInsets.all(8)),
+                        keyboardType: TextInputType.text,
+                        obscureText: false,
+                        maxLines: 5,
+                      ),
+                      const SizedBox(
+                        height: 12,
+                      ),
+                      InkWell(
+                        onTap: onBooking,
+                        child: Container(
+                          width: 250,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: const ShapeDecoration(
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(15)),
+                              ),
+                              color: Colors.blue),
+                          child: const Text(
+                            'Book Now',
+                            style: TextStyle(color: Colors.white, fontSize: 15),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                );
-              }
+                ),
+              );
               return Text('BUG');
             }));
   }

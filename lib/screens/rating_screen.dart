@@ -13,8 +13,14 @@ import 'info_res_screen.dart';
 
 class RatingCommentScreen extends StatefulWidget {
   final String name;
+  final String date;
+  final Timestamp bookingTimestamp;
 
-  RatingCommentScreen({super.key, required this.name});
+  RatingCommentScreen(
+      {super.key,
+      required this.name,
+      required this.date,
+      required this.bookingTimestamp});
   @override
   _RatingCommentScreenState createState() => _RatingCommentScreenState();
 }
@@ -43,9 +49,9 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
     String uid = _auth.currentUser!.uid;
     CollectionReference collectionRef =
         FirebaseFirestore.instance.collection('reservations');
-
-    Query query = collectionRef.where('userId', isEqualTo: uid);
-
+    Query query = collectionRef
+        .where('userId', isEqualTo: uid)
+        .where('bookingDate', isEqualTo: widget.bookingTimestamp);
     return Scaffold(
       appBar: homeAppBar(context),
       body: FutureBuilder(
@@ -152,7 +158,7 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                       width: 360,
                       height: 160,
                       child: TextField(
-                        maxLines: 5,
+                        maxLines: 2,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15.0)),

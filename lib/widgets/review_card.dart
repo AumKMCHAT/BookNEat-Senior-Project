@@ -21,34 +21,39 @@ class _ReviewCardState extends State<ReviewCard> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundImage: NetworkImage(widget.photoUrl),
-          radius: 50,
-        ),
-        title: Text(
-          widget.name,
-          style:
-              TextStyle(fontSize: 18, fontWeight: FontWeight.bold, height: 1.5),
-        ),
-        subtitle: Row(
-          children: [
-            Text(
-              widget.comment,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 3,
-              style: TextStyle(fontSize: 16),
-            )
-          ],
-        ),
-        trailing: Container(
-            width: 48,
-            child: Row(
+      child: Column(
+        children: [
+          ListTile(
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(widget.photoUrl),
+              radius: 50,
+            ),
+            title: Text(
+              widget.name,
+              style: TextStyle(
+                  fontSize: 18, fontWeight: FontWeight.bold, height: 1.5),
+            ),
+            subtitle: Row(
               children: [
-                Text(widget.star),
-                Icon(Icons.star, color: Colors.yellow)
+                Text(
+                  widget.comment,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  style: TextStyle(fontSize: 16),
+                )
               ],
-            )),
+            ),
+            trailing: Container(
+                width: 48,
+                child: Row(
+                  children: [
+                    Text(widget.star),
+                    Icon(Icons.star, color: Colors.yellow)
+                  ],
+                )),
+          ),
+          const Divider(color: Colors.grey, thickness: 1),
+        ],
       ),
     );
   }

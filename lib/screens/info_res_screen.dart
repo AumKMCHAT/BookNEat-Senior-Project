@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/app_bar.dart';
 import 'package:book_n_eat_senior_project/utils/restaurant_category.dart';
+import 'package:intl/intl.dart';
 
 class ResScreen extends StatefulWidget {
   final String name;
@@ -29,7 +30,7 @@ class _ResScreenState extends State<ResScreen> {
   double average = 0;
   List<double> numbers = [];
   List<String> saveRes = [''];
-
+  String dutyTime = '';
   bool isBooked = false;
 
   @override
@@ -59,6 +60,17 @@ class _ResScreenState extends State<ResScreen> {
 
   Future<void> getRes() async {
     String uid = _auth.currentUser!.uid;
+    // Get Open/Close time
+    QuerySnapshot resSnapshot = await FirebaseFirestore.instance
+        .collection('restaurants')
+        .where('resId', isEqualTo: widget.name)
+        .get();
+    QueryDocumentSnapshot resDocSnapshot = resSnapshot.docs[0];
+    DateTime openTimes = resDocSnapshot.get('timeOpen').toDate();
+    DateTime closeTimes = resDocSnapshot.get('timeClose').toDate();
+    String formattedOpenTime = DateFormat.jm().format(openTimes);
+    String formattedCloseTime = DateFormat.jm().format(closeTimes);
+    // Check Save Restaurant Status
     QuerySnapshot snapshot = await _firestore
         .collection('save')
         .where('resId', isEqualTo: widget.name)
@@ -67,13 +79,14 @@ class _ResScreenState extends State<ResScreen> {
         snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
     List<String> resnames =
         data.map((item) => item['resId'] as String).toList();
+    // Save data to variable
     setState(() {
       saveRes = resnames;
+      this.dutyTime = formattedOpenTime + ' - ' + formattedCloseTime;
       if (saveRes[0] == widget.name) {
         isSaved = !isSaved;
       }
     });
-    print(isSaved);
   }
 
   Future<void> getRating() async {
@@ -159,8 +172,6 @@ class _ResScreenState extends State<ResScreen> {
                     Icons.star,
                     color: Colors.yellow,
                   ),
-
-
                 SizedBox(
                   height: 100,
                   child: Padding(
@@ -178,6 +189,18 @@ class _ResScreenState extends State<ResScreen> {
                 )
               ],
             ),
+            Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 30, bottom: 15),
+                  child: Text(
+                    'Opening hours:  ' + dutyTime,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                    ),
+                  ),
+                )),
             StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('restaurants')
@@ -257,8 +280,7 @@ class _ResScreenState extends State<ResScreen> {
                                 style: OutlinedButton.styleFrom(
                                     padding: EdgeInsets.all(15)),
                                 onPressed: () async {
-                                  var url =
-                                      menuUrl;
+                                  var url = menuUrl;
                                   await launch(url);
                                 },
                                 child: Row(
@@ -306,14 +328,13 @@ class _ResScreenState extends State<ResScreen> {
                                   style: OutlinedButton.styleFrom(
                                       padding: EdgeInsets.all(15)),
                                   onPressed: () {
-                                    var url =
-                                        menuUrl;
+                                    var url = menuUrl;
                                     launch(url);
                                   },
                                   child: Row(
                                     children: [
                                       Icon(
-                                        Icons.reviews,
+                                        Icons.menu_book,
                                         size: 24.0,
                                       ),
                                       Text("          Menu")
