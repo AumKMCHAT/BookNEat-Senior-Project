@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../widgets/app_bar.dart';
 import '../widgets/res_card.dart';
 

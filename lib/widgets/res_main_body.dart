@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'catagory_item.dart';
 import 'res_card.dart';
+import 'package:intl/intl.dart';
 
 class ResBody extends StatefulWidget {
   const ResBody({super.key});
@@ -16,16 +17,60 @@ class _ResBodyState extends State<ResBody> {
   String type = '';
   bool _isButtonPressed = false;
 
+  @override
+  void initState() {
+    super.initState();
+    updateStatusRes();
+  }
+
+  Future<void> updateStatusRes() async {
+    final CollectionReference collection =
+        FirebaseFirestore.instance.collection('restaurants');
+    final QuerySnapshot querySnapshot = await collection.get();
+    DateTime currentDate = DateTime.now();
+    String formattedDate = DateFormat('EEE').format(currentDate);
+
+    for (final DocumentSnapshot document in querySnapshot.docs) {
+      final Timestamp timeOpen = document['timeOpen'];
+      final Timestamp timeClose = document['timeClose'];
+
+      final TimeOfDay timeOpenOfDay = TimeOfDay.fromDateTime(timeOpen.toDate());
+      final TimeOfDay timeCloseOfDay =
+          TimeOfDay.fromDateTime(timeClose.toDate());
+
+      final TimeOfDay currentTime = TimeOfDay.now();
+      List<String> myArray = querySnapshot.docs.first['days'].cast<String>();
+
+      int index = myArray.indexOf(formattedDate);
+
+      if (currentTime.hour >= timeOpenOfDay.hour &&
+          currentTime.minute >= timeOpenOfDay.minute &&
+          currentTime.hour < timeCloseOfDay.hour &&
+          index != -1) {
+        await document.reference.update({'status': true});
+      } else {
+        await document.reference.update({'status': false});
+      }
+    }
+  }
+
   Stream<QuerySnapshot> getAllData() {
-    return FirebaseFirestore.instance.collection('restaurants').snapshots();
+    return FirebaseFirestore.instance
+        .collection('restaurants')
+        .orderBy('status', descending: true)
+        .snapshots();
   }
 
   Stream<QuerySnapshot> getDataWithQuery(String newType) {
     if (newType == 'All') {
-      return FirebaseFirestore.instance.collection('restaurants').snapshots();
+      return FirebaseFirestore.instance
+          .collection('restaurants')
+          .orderBy('status', descending: true)
+          .snapshots();
     } else {
       return FirebaseFirestore.instance
           .collection('restaurants')
+          .orderBy('status', descending: true)
           .where('category', isEqualTo: newType)
           .snapshots();
     }

@@ -1,7 +1,6 @@
 import 'package:book_n_eat_senior_project/widgets/app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
 import '../widgets/review_card.dart';
 
 class ReviewListScreen extends StatefulWidget {

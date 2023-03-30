@@ -2,9 +2,8 @@ import 'package:book_n_eat_senior_project/screens/fav_screen.dart';
 import 'package:book_n_eat_senior_project/screens/history_screen.dart';
 import 'package:book_n_eat_senior_project/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
-
-import '../widgets/app_bar.dart';
 import '../widgets/res_main_body.dart';
+import '../widgets/screen_app_bar.dart';
 
 class ResMainScreen extends StatefulWidget {
   const ResMainScreen({super.key});
@@ -32,7 +31,7 @@ class _ResMainScreen extends State<ResMainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: homeAppBar(context),
+      appBar: screenAppBar(context),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[

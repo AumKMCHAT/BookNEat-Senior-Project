@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:book_n_eat_senior_project/models/user.dart' as model;
-
 import '../providers/user_provider.dart';
 import '../resources/auth_methods.dart';
 import 'login_screen.dart';
@@ -42,8 +41,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         data.map((item) => item['status'].toString() as String).toList();
     setState(() {
       this.status = resnames;
-      if (resnames[0] == true) resStatus = !resStatus;
-      if (resnames[0] == false) resStatus = !resStatus;
+      if (resnames[0] == true) resStatus = false;
+      if (resnames[0] == false) resStatus = true;
     });
     print(resnames);
   }

@@ -49,6 +49,8 @@ dependencies:
   carousel_slider: ^4.2.1
   url_launcher: ^6.0.0
   flutter_rating_bar: ^4.0.0
+  get: ^4.6.5
+  flutter_pdfview: ^1.0.0
 
 dev_dependencies:
   flutter_test:
@@ -79,6 +81,7 @@ flutter:
     - assets/images/res1.jpg
     - assets/images/res2.jpg
     - assets/images/res3.jpg
+    - assets/images/bookneat_logo.png
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

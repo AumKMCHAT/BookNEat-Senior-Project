@@ -41,7 +41,7 @@ class _HistoryItemState extends State<HistoryItem> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (widget.status == 'Not Review')
+            if (widget.status == 'Completed')
               ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -51,7 +51,31 @@ class _HistoryItemState extends State<HistoryItem> {
                                   name: widget.resName,
                                 )));
                   },
-                  child: Text('Review'))
+                  child: Text('Review')),
+            if (widget.status == 'Pending')
+              Text(
+                'Pending',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.orange),
+              ),
+            if (widget.status == 'Canceled')
+              Text(
+                'Canceled',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+              ),
+            if (widget.status == 'Reviewed')
+              Text(
+                'Finished',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+              ),
+            if (widget.status == 'Confirmed')
+              Text(
+                'Confirmed',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
+              ),
           ],
         ),
       ),

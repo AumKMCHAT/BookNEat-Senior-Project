@@ -1,18 +1,10 @@
-import 'dart:math';
-
 import 'package:book_n_eat_senior_project/screens/booking_screen.dart';
-import 'package:book_n_eat_senior_project/screens/rating_screen.dart';
 import 'package:book_n_eat_senior_project/screens/review_list_screen.dart';
-import 'package:book_n_eat_senior_project/widgets/res_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
-import 'package:provider/provider.dart';
-import 'package:book_n_eat_senior_project/models/user.dart' as model;
 import 'package:url_launcher/url_launcher.dart';
-import '../providers/user_provider.dart';
 import '../widgets/app_bar.dart';
 
 class ResScreen extends StatefulWidget {
@@ -144,7 +136,7 @@ class _ResScreenState extends State<ResScreen> {
                     Icons.star,
                     color: Colors.yellow,
                   ),
-                // Text(average.toString()),
+
 
                 SizedBox(
                   height: 100,
@@ -190,6 +182,7 @@ class _ResScreenState extends State<ResScreen> {
                       final String telephone = item['telephone'];
                       final double longtitude = item['location'].longitude;
                       final double latitude = item['location'].latitude;
+                      final String menuUrl = item['menuUrl'];
                       return Column(
                         children: [
                           Container(
@@ -242,9 +235,7 @@ class _ResScreenState extends State<ResScreen> {
                                     padding: EdgeInsets.all(15)),
                                 onPressed: () async {
                                   var url =
-                                      "https://www.google.com/maps/search/?api=1&query=$latitude,$longtitude";
-                                  // ignore: deprecated_member_use
-
+                                      menuUrl;
                                   await launch(url);
                                 },
                                 child: Row(
@@ -258,7 +249,7 @@ class _ResScreenState extends State<ResScreen> {
                                 )),
                           ),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 20, 10, 50),
+                            padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
                             child: SizedBox(
                               height: 62,
                               child: TextButton(
@@ -283,6 +274,29 @@ class _ResScreenState extends State<ResScreen> {
                                     ],
                                   )),
                             ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10, 20, 10, 50),
+                            child: SizedBox(
+                              height: 62,
+                              child: TextButton(
+                                  style: OutlinedButton.styleFrom(
+                                      padding: EdgeInsets.all(15)),
+                                  onPressed: () {
+                                    var url =
+                                        menuUrl;
+                                    launch(url);
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.reviews,
+                                        size: 24.0,
+                                      ),
+                                      Text("          Menu")
+                                    ],
+                                  )),
+                            ),
                           )
                         ],
                       );
@@ -290,17 +304,6 @@ class _ResScreenState extends State<ResScreen> {
                   ),
                 );
               },
-            ),
-            Column(
-              children: [
-                Text(
-                  "Menu",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
             ),
           ],
         ),

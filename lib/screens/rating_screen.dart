@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../providers/user_provider.dart';
 import '../widgets/app_bar.dart';
 import 'package:book_n_eat_senior_project/models/user.dart' as model;

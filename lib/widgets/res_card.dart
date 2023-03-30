@@ -21,12 +21,13 @@ class ResCard extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     return InkWell(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ResScreen(
-                      name: title,
-                    )));
+        if (status == true)
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ResScreen(
+                        name: title,
+                      )));
       },
       child: Container(
         padding: EdgeInsets.all(20),
@@ -75,7 +76,7 @@ class ResCard extends StatelessWidget {
                       catagory,
                     ),
                   ),
-                  if (status == true) ...[
+                  if (status == true)
                     Text(
                       "Open",
                       style: TextStyle(
@@ -83,7 +84,7 @@ class ResCard extends StatelessWidget {
                         color: Colors.green,
                       ),
                     ),
-                  ] else if (status == false) ...[
+                  if (status == false) ...[
                     Text(
                       'Close',
                       style: TextStyle(

@@ -1,6 +1,4 @@
-import 'package:book_n_eat_senior_project/screens/profile_screen.dart';
 import 'package:book_n_eat_senior_project/screens/res_main_screen.dart';
-import 'package:book_n_eat_senior_project/widgets/app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -45,9 +43,10 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     String uid = _auth.currentUser!.uid;
-
+    int count = 0;
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         title: Text(
           'Book n Eat',
@@ -79,7 +78,7 @@ class _OrderScreenState extends State<OrderScreen> {
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('reservations')
-                .where('status', isNotEqualTo: 'reviewed')
+                .where('status', isEqualTo: 'Pending')
                 .where('resId', whereIn: resnames)
                 .snapshots(),
             builder: (context, snapshot) {
@@ -115,7 +114,11 @@ class _OrderScreenState extends State<OrderScreen> {
                       ),
                       subtitle: Row(
                         children: [
-                          Text('request: ' + item['request']),
+                          Text(
+                            'request: ' + item['request'],
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                           Padding(
                             padding: const EdgeInsets.only(left: 30),
                             child: Text(item['quantity'].toString() + ' คน'),
@@ -125,7 +128,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (item['status'] == 'pending')
+                          if (item['status'] == 'Pending') ...[
                             ElevatedButton(
                                 onPressed: () {
                                   CollectionReference collectionRef =
@@ -141,7 +144,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                   query.get().then((querySnapshot) {
                                     querySnapshot.docs.forEach((doc) {
                                       doc.reference
-                                          .update({'status': 'Not Review'})
+                                          .update({'status': 'Confirmed'})
                                           .then((value) => print(
                                               "Field updated successfully!"))
                                           .catchError((error) => print(
@@ -154,7 +157,43 @@ class _OrderScreenState extends State<OrderScreen> {
                                           builder: (context) => OrderScreen()));
                                 },
                                 child: Text('Accept')),
-                          if (item['status'] == 'Not Review')
+                            SizedBox(
+                              width: 3,
+                            ),
+                            ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors
+                                      .red, // set the button's background color
+                                ),
+                                onPressed: () {
+                                  CollectionReference collectionRef =
+                                      FirebaseFirestore.instance
+                                          .collection('reservations');
+
+                                  Query query = collectionRef
+                                      .where('resId', isEqualTo: item['resId'])
+                                      .where('bookingDate',
+                                          isEqualTo: item['bookingDate'])
+                                      .where('userId',
+                                          isEqualTo: item['userId']);
+                                  query.get().then((querySnapshot) {
+                                    querySnapshot.docs.forEach((doc) {
+                                      doc.reference
+                                          .update({'status': 'Canceled'})
+                                          .then((value) => print(
+                                              "Field updated successfully!"))
+                                          .catchError((error) => print(
+                                              "Failed to update field: $error"));
+                                    });
+                                  });
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => OrderScreen()));
+                                },
+                                child: Text('Cancel')),
+                          ],
+                          if (item['status'] == 'Confirmed')
                             ElevatedButton(
                                 onPressed: () {
                                   CollectionReference collectionRef =
@@ -170,17 +209,16 @@ class _OrderScreenState extends State<OrderScreen> {
                                   query.get().then((querySnapshot) {
                                     querySnapshot.docs.forEach((doc) {
                                       doc.reference
-                                          .update({'status': 'reviewed'})
+                                          .update({'status': 'Completed'})
                                           .then((value) => print(
                                               "Field updated successfully!"))
                                           .catchError((error) => print(
                                               "Failed to update field: $error"));
                                     });
                                   });
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => OrderScreen()));
+                                  setState(() {
+                                    count++;
+                                  });
                                 },
                                 child: Text('Success'))
                         ],
