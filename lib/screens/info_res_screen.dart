@@ -1,11 +1,14 @@
 import 'package:book_n_eat_senior_project/screens/booking_screen.dart';
 import 'package:book_n_eat_senior_project/screens/review_list_screen.dart';
+import 'package:book_n_eat_senior_project/widgets/dialog_box_booked.dart';
+import 'package:book_n_eat_senior_project/widgets/res_card.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/app_bar.dart';
+import 'package:book_n_eat_senior_project/utils/restaurant_category.dart';
 
 class ResScreen extends StatefulWidget {
   final String name;
@@ -27,11 +30,31 @@ class _ResScreenState extends State<ResScreen> {
   List<double> numbers = [];
   List<String> saveRes = [''];
 
+  bool isBooked = false;
+
   @override
   void initState() {
     super.initState();
     getRating();
     getRes();
+    checkBooking();
+  }
+
+  void checkBooking() async {
+    QuerySnapshot snapshot = await _firestore
+        .collection('reservations')
+        .where('resId', isEqualTo: widget.name)
+        .where('userId', isEqualTo: _auth.currentUser!.uid)
+        .where('status', whereIn: [statusPending, statusConfirmed]).get();
+
+    List<Map<String, dynamic>> data =
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    if (data.isNotEmpty) {
+      isBooked = true;
+    }
+    // query reservations "userId", "resId" that have status not Reviewed
+    // setState isBooked = true
+    // change button Reserver a Table to route dialog box
   }
 
   Future<void> getRes() async {
@@ -313,12 +336,21 @@ class _ResScreenState extends State<ResScreen> {
         child: TextButton(
             style: OutlinedButton.styleFrom(padding: EdgeInsets.all(15)),
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => BookingScreen(
-                            resId: widget.name,
-                          )));
+              if (isBooked)
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return DialogBoxBooked(
+                        onCancel: () => Navigator.of(context).pop(),
+                      );
+                    });
+              if (!isBooked)
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => BookingScreen(
+                              resId: widget.name,
+                            )));
             },
             child: Padding(
               padding: EdgeInsets.only(left: 100),

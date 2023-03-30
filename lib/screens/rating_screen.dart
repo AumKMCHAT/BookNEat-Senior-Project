@@ -1,4 +1,5 @@
 import 'package:book_n_eat_senior_project/screens/res_main_screen.dart';
+import 'package:book_n_eat_senior_project/utils/restaurant_category.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -194,7 +195,7 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                       query.get().then((querySnapshot) {
                         querySnapshot.docs.forEach((doc) {
                           doc.reference
-                              .update({'status': 'Reviewed'})
+                              .update({'status': statusReviewed})
                               .then((value) =>
                                   print("Field updated successfully!"))
                               .catchError((error) =>

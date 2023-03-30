@@ -1,4 +1,6 @@
 import 'package:book_n_eat_senior_project/screens/res_main_screen.dart';
+import 'package:book_n_eat_senior_project/utils/restaurant_category.dart';
+import 'package:book_n_eat_senior_project/widgets/app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +39,6 @@ class _OrderScreenState extends State<OrderScreen> {
     setState(() {
       this.resnames = resnames;
     });
-    print(resnames);
   }
 
   @override
@@ -78,7 +79,7 @@ class _OrderScreenState extends State<OrderScreen> {
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('reservations')
-                .where('status', isEqualTo: 'Pending')
+                .where('status', isNotEqualTo: statusReviewed)
                 .where('resId', whereIn: resnames)
                 .snapshots(),
             builder: (context, snapshot) {
@@ -128,7 +129,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (item['status'] == 'Pending') ...[
+                          if (item['status'] == statusPending)
                             ElevatedButton(
                                 onPressed: () {
                                   CollectionReference collectionRef =
@@ -179,7 +180,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                   query.get().then((querySnapshot) {
                                     querySnapshot.docs.forEach((doc) {
                                       doc.reference
-                                          .update({'status': 'Canceled'})
+                                          .update({'status': statusReviewed})
                                           .then((value) => print(
                                               "Field updated successfully!"))
                                           .catchError((error) => print(

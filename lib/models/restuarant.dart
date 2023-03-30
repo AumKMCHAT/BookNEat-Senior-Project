@@ -11,8 +11,10 @@ class Restaurant {
   final int workingMinute;
   final List<String> photoUrl; // multiple img
   final String telephone; // + button
+  final int maxPerson;
   final bool status; // boolean true | false
   final String userId;
+  final String menuUrl;
 
   const Restaurant({
     required this.resId,
@@ -21,12 +23,14 @@ class Restaurant {
     required this.location,
     required this.photoUrl,
     required this.telephone,
+    required this.maxPerson,
     required this.status,
     required this.userId,
     required this.days,
     required this.timeOpen,
     required this.timeClose,
     required this.workingMinute,
+    required this.menuUrl,
   });
 
   Map<String, dynamic> toJson() => {
@@ -36,12 +40,14 @@ class Restaurant {
         "location": location,
         "photoUrl": photoUrl,
         "telephone": telephone,
+        "maxPerson": maxPerson,
         "status": status,
         "days": days,
         "timeOpen": timeOpen,
         "timeClose": timeClose,
         "workingMinute": workingMinute,
-        "userId": userId
+        "userId": userId,
+        "menuUrl": menuUrl
       };
 
   static Restaurant fromSnap(DocumentSnapshot snap) {
@@ -54,12 +60,14 @@ class Restaurant {
       location: snapshot['location'],
       photoUrl: snapshot['photoUrl'],
       telephone: snapshot['telephone'],
+      maxPerson: snapshot['manPerson'],
       status: snapshot['status'],
       days: snapshot['days'],
       timeOpen: snapshot['timeOpen'],
       timeClose: snapshot['timeClose'],
       workingMinute: snapshot['workingMinute'],
       userId: snapshot['userId'],
+      menuUrl: snapshot['menuUrl'],
     );
   }
 }

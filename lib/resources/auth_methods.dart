@@ -32,6 +32,7 @@ class AuthMedthods {
       required String confirmPassword,
       required String firstName,
       required String lastName,
+      required String telephone,
       Uint8List? file,
       String role = "customer"}) async {
     String res = "Some error occurred";
@@ -47,6 +48,7 @@ class AuthMedthods {
           password.isNotEmpty &&
           confirmPassword.isNotEmpty &&
           firstName.isNotEmpty &&
+          telephone.isNotEmpty &&
           lastName.isNotEmpty) {
         if (password == confirmPassword) {
           // register user
@@ -65,6 +67,7 @@ class AuthMedthods {
               firstName: firstName,
               lastName: lastName,
               role: role,
+              telephone: telephone,
               photoUrl: photoUrl);
 
           await _firestore
@@ -126,11 +129,13 @@ class AuthMedthods {
       required Position position,
       required List<File> files,
       required String telephone,
+      required int maxPerson,
       required bool status,
       String role = "restaurant",
       required Timestamp timeOpen,
       required Timestamp timeClose,
       required int workingMinute,
+      required File filePdf,
       required List<String> days}) async {
     String res = "Some error occurred";
     List<String> photoUrls = [];
@@ -138,8 +143,6 @@ class AuthMedthods {
     // current user foreignkey
     final User? user = _auth.currentUser;
     final currentUserUid = user!.uid;
-    // const currentUserUid = "0qjetg1HgNeEj5shfeS4yqBxFuk1";
-    print(currentUserUid);
 
     var collection = _firestore.collection('users');
     try {
@@ -157,7 +160,8 @@ class AuthMedthods {
 
         // update role
         if (count == 0) {
-          collection
+          String filePdfPath = await StorageMethods().uploadFilePdf(filePdf);
+          await collection
               .doc(currentUserUid) // <-- Doc ID where data should be updated.
               .update({'role': role}) // <-- Updated data
               .then((_) => print('Updated'))
@@ -171,10 +175,12 @@ class AuthMedthods {
           model_restaurant.Restaurant restaurant = model_restaurant.Restaurant(
               resId: name,
               name: name,
+              menuUrl: filePdfPath,
               category: category,
               location: geoPoint,
               photoUrl: photoUrls,
               telephone: telephone,
+              maxPerson: maxPerson,
               status: status,
               days: days,
               timeOpen: timeOpen,
@@ -205,7 +211,6 @@ class AuthMedthods {
     //     (DocumentSnapshot documentSnapshot) => print(documentSnapshot.data()));
     // _firestore.collection('menus').doc(_auth.currentUser!.uid);
     Menu menu = menus[0];
-    print(menus.length);
     Map<String, dynamic> map = menu.toJson();
     for (int i = 1; i < menus.length; i++) {
       Menu m = menus[i];
@@ -213,7 +218,6 @@ class AuthMedthods {
     }
 
     _firestore.collection('menus').doc('testResId').set(map);
-    print(map.length);
   }
 
   Future<String> bookingRestaurant({
@@ -247,6 +251,29 @@ class AuthMedthods {
       }
     } catch (err) {
       res = err.toString();
+    }
+    return res;
+  }
+
+  Future<String> updateRestaurantMenu(
+      {required File filePdf, required String resId}) async {
+    String res = "waiting";
+    String oldFilePdfPath = await _firestore
+        .collection('restaurants')
+        .doc(resId)
+        .get()
+        .then((DocumentSnapshot snapshot) =>
+            snapshot.get(FieldPath(['menuUrl'])));
+    print(oldFilePdfPath);
+    StorageMethods().deleteFileMenu(oldFilePdfPath);
+    String newFilePdfPath = await StorageMethods().uploadFilePdf(filePdf);
+    if (newFilePdfPath.isNotEmpty) {
+      await _firestore
+          .collection('restaurants')
+          .doc(resId)
+          .update({'menuUrl': newFilePdfPath})
+          .then((value) => res = "ระบบได้เปลี่ยนเมนูใหม่เรียบร้อยแล้ว")
+          .catchError((error) => res = error.toString());
     }
     return res;
   }

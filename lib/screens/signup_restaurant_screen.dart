@@ -1,7 +1,8 @@
 import 'dart:io';
 import 'package:book_n_eat_senior_project/resources/auth_methods.dart';
-import 'package:book_n_eat_senior_project/screens/home_screen.dart';
 import 'package:book_n_eat_senior_project/screens/login_screen.dart';
+import 'package:book_n_eat_senior_project/screens/profile_screen.dart';
+import 'package:book_n_eat_senior_project/screens/res_main_screen.dart';
 import 'package:book_n_eat_senior_project/utils/colors.dart';
 import 'package:book_n_eat_senior_project/utils/utils.dart';
 import 'package:book_n_eat_senior_project/widgets/app_bar.dart';
@@ -9,12 +10,14 @@ import 'package:book_n_eat_senior_project/widgets/menu_form.dart';
 import 'package:book_n_eat_senior_project/widgets/text_field_input.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:book_n_eat_senior_project/utils/restaurant_category.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:book_n_eat_senior_project/models/menu.dart';
+import 'package:path/path.dart' as basename;
 
 class SignupRestaurantScreen extends StatefulWidget {
   const SignupRestaurantScreen({super.key});
@@ -29,11 +32,16 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
   late Position _position;
   List<XFile> images = [];
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _maxPersonController = TextEditingController();
   List<String> _telephone = [];
   bool status = false;
   bool _isLoading = false;
 
+  bool pressed = false;
+
   List<File> files = [];
+  late File filePdf;
+  String filePdfPath = "No Menu File Selected";
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
@@ -67,12 +75,28 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
     _resNameController.dispose();
   }
 
+  Future<void> _pickFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null) {
+      File file = File(result.files.single.path!);
+      filePdf = file;
+      setState(() {
+        filePdfPath = basename.basename(file.path).toString();
+      });
+      // Do something with the PDF file
+    }
+  }
+
   void getCurrentLocation() async {
     Position position = await determinePosition();
     setState(() {
       _position = position;
+      pressed = true;
     });
-    print(_position);
   }
 
   Future<Position> determinePosition() async {
@@ -106,13 +130,15 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
     setState(() {
       _isLoading = true;
     });
-    //
+
     String res = await AuthMedthods().signUpRestaurant(
       name: _resNameController.text,
       category: _category,
+      filePdf: filePdf,
       position: _position,
       files: files,
       telephone: _phoneController.text,
+      maxPerson: int.parse(_maxPersonController.text),
       status: status,
       days: days,
       timeOpen: openTimeStamp,
@@ -124,13 +150,13 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
       _isLoading = false;
     });
 
-    if (res != 'success') {
-      showSnackBar(res, context);
-    } else {
-      print("success");
-      // Navigator.of(context).pushReplacement(
-      //     MaterialPageRoute(builder: (context) => const HomeScreen()));
-    }
+    // if (res != 'success') {
+    //   showSnackBar(res, context);
+    // } else {
+    print("success");
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const ResMainScreen()));
+    // }
   }
 
   void navigateToLogin() {
@@ -158,7 +184,6 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
     setState(() {
       _clicked[index] = _clicked[index];
     });
-    print(days.toString());
     // int work = (timeClose.hour - timeOpen.hour) % 12 ? (timeClose.hour==timeOpen.hour) ? 12 : 24;
     DateTime now = DateTime.now();
     // if timeClose < timeOpen --->>>> now.day+1
@@ -174,9 +199,6 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
 
       int workingTime = dateTimeClose.difference(dateTimeOpen).inMinutes;
       workingMinute = workingTime;
-      print(openTimeStamp);
-      print(closeTimeStamp);
-      print(workingTime);
     } else {
       DateTime dateTimeClose = DateTime(
           now.year, now.month, now.day, timeClose.hour, timeClose.minute);
@@ -188,9 +210,6 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
 
       int workingTime = dateTimeClose.difference(dateTimeOpen).inMinutes;
       workingMinute = workingTime;
-      print(openTimeStamp);
-      print(closeTimeStamp);
-      print(workingTime);
     }
   }
 
@@ -200,7 +219,6 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
     setState(() {
       _clicked[index] = _clicked[index];
     });
-    print(days);
   }
 
   void onDelete(int index) {
@@ -239,7 +257,13 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
             //svg image
-            const Text("Register Restaurant"),
+            const Text(
+              "Register Restaurant",
+              style: TextStyle(fontSize: 24),
+            ),
+            const SizedBox(
+              height: 24,
+            ),
 
             // select multiple photo
             images.isNotEmpty
@@ -311,26 +335,27 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
               height: 24,
             ),
 
+            TextFieldInput(
+                textEditingController: _maxPersonController,
+                hintText: "Max Person of Table",
+                textInputType: TextInputType.number),
+            const SizedBox(
+              height: 24,
+            ),
+
             // get current location button
             Row(
               children: [
                 const Text("Category:    "),
                 DropdownButton(
-                  // Initial Value
                   value: _category,
-
-                  // Down Arrow Icon
                   icon: const Icon(Icons.keyboard_arrow_down),
-
-                  // Array list of items
                   items: category.map((String items) {
                     return DropdownMenuItem(
                       value: items,
                       child: Text(items),
                     );
                   }).toList(),
-                  // After selecting the desired option,it will
-                  // change button value to selected value
                   onChanged: (String? newValue) {
                     setState(() {
                       _category = newValue!;
@@ -343,10 +368,12 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
                 const Text("Location: "),
                 OutlinedButton(
                   onPressed: getCurrentLocation,
-                  style: OutlinedButton.styleFrom(shape: const StadiumBorder()),
-                  child: const Icon(
+                  style: OutlinedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      backgroundColor: pressed ? Colors.blue : Colors.white),
+                  child: Icon(
                     Icons.place_outlined,
-                    color: Colors.black,
+                    color: pressed ? Colors.white : Colors.black,
                     size: 24.0,
                   ),
                 )
@@ -354,6 +381,47 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
             ),
             const SizedBox(
               height: 10,
+            ),
+
+            Row(
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      "Open Time:",
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    OutlinedButton(
+                      onPressed: selectTimeOpen,
+                      style: OutlinedButton.styleFrom(
+                          shape: const StadiumBorder()),
+                      child: Text(
+                        "${timeOpen.hour}:${timeOpen.minute}",
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                Row(
+                  children: [
+                    const Text(
+                      "Close Time:",
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    OutlinedButton(
+                        onPressed: selectTimeClose,
+                        style: OutlinedButton.styleFrom(
+                            shape: const StadiumBorder()),
+                        child: Text(
+                          "${timeClose.hour}:${timeClose.minute}",
+                          style: const TextStyle(fontSize: 18),
+                        ))
+                  ],
+                )
+              ],
             ),
 
             const Text("Open Day"),
@@ -504,63 +572,38 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
               ),
             ),
 
-            Row(
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      "Open Time:",
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    OutlinedButton(
-                      onPressed: selectTimeOpen,
-                      style: OutlinedButton.styleFrom(
-                          shape: const StadiumBorder()),
-                      child: Text(
-                        "${timeOpen.hour}:${timeOpen.minute}",
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  width: 20,
-                ),
-                Row(
-                  children: [
-                    const Text(
-                      "Close Time:",
-                      style: TextStyle(fontSize: 15),
-                    ),
-                    OutlinedButton(
-                        onPressed: selectTimeClose,
-                        style: OutlinedButton.styleFrom(
-                            shape: const StadiumBorder()),
-                        child: Text(
-                          "${timeClose.hour}:${timeClose.minute}",
-                          style: const TextStyle(fontSize: 18),
-                        ))
-                  ],
-                )
-              ],
-            ),
-
-            // list of menu
-            SizedBox(
-              height: 320,
-              child: ListView.builder(
-                addAutomaticKeepAlives: true,
-                itemCount: forms.length,
-                itemBuilder: (_, i) {
-                  return forms[i];
-                },
-              ),
-            ),
-            FloatingActionButton(
-                onPressed: onAddMenuForm, child: const Icon(Icons.add)),
+            // // list of menu
+            // SizedBox(
+            //   height: 320,
+            //   child: ListView.builder(
+            //     addAutomaticKeepAlives: true,
+            //     itemCount: forms.length,
+            //     itemBuilder: (_, i) {
+            //       return forms[i];
+            //     },
+            //   ),
+            // ),
+            // FloatingActionButton(
+            //     onPressed: onAddMenuForm, child: const Icon(Icons.add)),
 
             const SizedBox(
               height: 12,
+            ),
+            Column(
+              children: [
+                Text(filePdfPath),
+                ElevatedButton(
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStatePropertyAll(Colors.white),
+                      foregroundColor: MaterialStatePropertyAll(Colors.blue)),
+                  onPressed: _pickFile,
+                  child: Text('Pick a PDF file'),
+                ),
+              ],
+            ),
+
+            const SizedBox(
+              height: 44,
             ),
             //button
             InkWell(
@@ -586,33 +629,33 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
                       ),
               ),
             ),
-            const SizedBox(
-              height: 12,
-            ),
+            // const SizedBox(
+            //   height: 12,
+            // ),
 
-            InkWell(
-              onTap: printData,
-              child: Container(
-                width: double.infinity,
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: const ShapeDecoration(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(4)),
-                    ),
-                    color: Colors.blue),
-                child: _isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                          color: primaryColor,
-                        ),
-                      )
-                    : const Text(
-                        'Print',
-                        style: TextStyle(color: Colors.white),
-                      ),
-              ),
-            ),
+            // InkWell(
+            //   onTap: printData,
+            //   child: Container(
+            //     width: double.infinity,
+            //     alignment: Alignment.center,
+            //     padding: const EdgeInsets.symmetric(vertical: 12),
+            //     decoration: const ShapeDecoration(
+            //         shape: RoundedRectangleBorder(
+            //           borderRadius: BorderRadius.all(Radius.circular(4)),
+            //         ),
+            //         color: Colors.blue),
+            //     child: _isLoading
+            //         ? const Center(
+            //             child: CircularProgressIndicator(
+            //               color: primaryColor,
+            //             ),
+            //           )
+            //         : const Text(
+            //             'Print Menu',
+            //             style: TextStyle(color: Colors.white),
+            //           ),
+            //   ),
+            // ),
           ]),
         )),
       ),

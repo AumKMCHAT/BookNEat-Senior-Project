@@ -1,5 +1,7 @@
 import 'package:book_n_eat_senior_project/screens/signup_restaurant_screen.dart';
+import 'package:book_n_eat_senior_project/widgets/dialog_box_edit_menu.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,7 +46,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (resnames[0] == true) resStatus = false;
       if (resnames[0] == false) resStatus = true;
     });
-    print(resnames);
   }
 
   addData() async {
@@ -96,28 +97,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 30, 10, 0),
-                      child: SizedBox(
-                        width: 250,
-                        child: TextButton(
-                            style: OutlinedButton.styleFrom(
-                                padding: EdgeInsets.all(20)),
-                            onPressed: () async {},
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.settings,
-                                  size: 30.0,
-                                ),
-                                Text(
-                                  "          Edit Profile",
-                                  style: TextStyle(fontSize: 18),
-                                )
-                              ],
-                            )),
-                      ),
-                    ),
-                    Padding(
                       padding: const EdgeInsets.fromLTRB(60, 20, 10, 0),
                       child: SizedBox(
                         width: 300,
@@ -131,25 +110,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     MaterialPageRoute(
                                         builder: (context) =>
                                             SignupRestaurantScreen()));
-                              } else if (user.role == 'restaurant') {
-                                print('test');
-                              }
+                              } else if (user.role == 'restaurant') {}
                             },
                             child: Row(
                               children: [
-                                Icon(
-                                  Icons.storefront,
-                                  size: 30.0,
-                                ),
+                                if (user.role == 'customer')
+                                  Icon(
+                                    Icons.storefront,
+                                    size: 30.0,
+                                  ),
                                 if (user.role == 'customer')
                                   Text(
                                     "          Create Restaurant",
                                     style: TextStyle(fontSize: 16),
-                                  )
-                                else if (user.role == 'restaurant')
-                                  Text(
-                                    "          Edit Restaurant",
-                                    style: TextStyle(fontSize: 18),
                                   )
                               ],
                             )),
@@ -163,7 +136,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: TextButton(
                               style: OutlinedButton.styleFrom(
                                   padding: EdgeInsets.all(20)),
-                              onPressed: () {},
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return DialogBoxEditMenu(
+                                        onCancel: () =>
+                                            Navigator.of(context).pop(),
+                                      );
+                                    });
+                              },
                               child: Row(
                                 children: [
                                   Icon(

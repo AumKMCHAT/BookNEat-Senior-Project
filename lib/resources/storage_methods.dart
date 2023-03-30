@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart';
 
 class StorageMethods {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -34,5 +34,23 @@ class StorageMethods {
     String url = await taskSnapshot.ref.getDownloadURL();
 
     return url;
+  }
+
+  Future<String> uploadFilePdf(File file) async {
+    String fileName = basename(file.path);
+    Reference storageRef =
+        FirebaseStorage.instance.ref().child('menus').child(fileName);
+    UploadTask uploadTask = storageRef.putFile(file);
+    TaskSnapshot taskSnapshot = await uploadTask.whenComplete(() => {});
+    return await taskSnapshot.ref.getDownloadURL();
+  }
+
+  void deleteFileMenu(String filePath) async {
+    // Create a reference to the file to delete
+
+    final desertRef = _storage.refFromURL(filePath);
+
+// Delete the file
+    await desertRef.delete();
   }
 }
