@@ -102,7 +102,7 @@ class _OrderScreenState extends State<OrderScreen> {
                     Timestamp timestamp = item['bookingDate'];
                     DateTime dateTime = timestamp.toDate().toLocal();
                     String dateString =
-                        DateFormat('dd-MM-yyyy  hh:mm aaa').format(dateTime);
+                        DateFormat('dd/MM/yyyy  hh:mm aaa').format(dateTime);
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
@@ -126,7 +126,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                 child: Column(
                                   children: [
                                     Text(
-                                      'request: ' + item['request'],
+                                      'Request: ' + item['request'],
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 2,
                                     ),

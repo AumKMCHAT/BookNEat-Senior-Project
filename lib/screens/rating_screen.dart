@@ -83,7 +83,7 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                             Icons.star_rounded,
                             size: 40,
                           ),
-                          color: _rating >= 1 ? Colors.black : Colors.grey,
+                          color: _rating >= 1 ? Colors.yellow : Colors.grey,
                           onPressed: () {
                             setState(() {
                               _rating = 1.0;
@@ -95,7 +95,7 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                             Icons.star_rounded,
                             size: 40,
                           ),
-                          color: _rating >= 2 ? Colors.black : Colors.grey,
+                          color: _rating >= 2 ? Colors.yellow : Colors.grey,
                           onPressed: () {
                             setState(() {
                               _rating = 2.0;
@@ -107,7 +107,7 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                             Icons.star_rounded,
                             size: 40,
                           ),
-                          color: _rating >= 3 ? Colors.black : Colors.grey,
+                          color: _rating >= 3 ? Colors.yellow : Colors.grey,
                           onPressed: () {
                             setState(() {
                               _rating = 3.0;
@@ -119,7 +119,7 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                             Icons.star_rounded,
                             size: 40,
                           ),
-                          color: _rating >= 4 ? Colors.black : Colors.grey,
+                          color: _rating >= 4 ? Colors.yellow : Colors.grey,
                           onPressed: () {
                             setState(() {
                               _rating = 4.0;
@@ -131,7 +131,7 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                             Icons.star_rounded,
                             size: 40,
                           ),
-                          color: _rating >= 5 ? Colors.black : Colors.grey,
+                          color: _rating >= 5 ? Colors.yellow : Colors.grey,
                           onPressed: () {
                             setState(() {
                               _rating = 5.0;
@@ -158,7 +158,7 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                       width: 360,
                       height: 160,
                       child: TextField(
-                        maxLines: 2,
+                        maxLines: 10,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15.0)),

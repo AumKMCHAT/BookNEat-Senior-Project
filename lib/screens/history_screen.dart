@@ -53,7 +53,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       Timestamp timestamp = item['bookingDate'];
                       DateTime dateTime = timestamp.toDate().toLocal();
                       String dateString =
-                          DateFormat('dd.MM.yyyy  hh:mm aaa').format(dateTime);
+                          DateFormat('dd/MM/yyyy  hh:mm aaa').format(dateTime);
                       return HistoryItem(
                         resName: item['resId'],
                         date: dateString,

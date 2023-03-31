@@ -74,6 +74,7 @@ class _ResScreenState extends State<ResScreen> {
     QuerySnapshot snapshot = await _firestore
         .collection('save')
         .where('resId', isEqualTo: widget.name)
+        .where('userId', isEqualTo: uid)
         .get();
     List<Map<String, dynamic>> data =
         snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();

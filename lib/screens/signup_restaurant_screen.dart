@@ -330,7 +330,7 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
             TextFieldInput(
                 textEditingController: _phoneController,
                 hintText: "Telephone Number",
-                textInputType: TextInputType.text),
+                textInputType: TextInputType.phone),
             const SizedBox(
               height: 24,
             ),

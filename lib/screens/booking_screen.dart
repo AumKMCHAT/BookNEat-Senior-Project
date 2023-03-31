@@ -76,7 +76,7 @@ class BookingScreenState extends State<BookingScreen> {
         builder: (context) {
           return DialogBoxConfirm(
               onCancel: () => Navigator.of(context).pop(),
-              onConfirm: confirmBooking,
+              onConfirm: () => {confirmBooking(), Navigator.of(context).pop()},
               quantity: _people,
               bookingDate: bookingTime,
               request: _requestController.text);

@@ -33,13 +33,16 @@ class _ReviewCardState extends State<ReviewCard> {
               style: TextStyle(
                   fontSize: 18, fontWeight: FontWeight.bold, height: 1.5),
             ),
-            subtitle: Row(
+            subtitle: Column(
               children: [
-                Text(
-                  widget.comment,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 3,
-                  style: TextStyle(fontSize: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    widget.comment,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 3,
+                    style: TextStyle(fontSize: 16),
+                  ),
                 )
               ],
             ),
