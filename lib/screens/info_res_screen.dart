@@ -280,8 +280,9 @@ class _ResScreenState extends State<ResScreen> {
                                 style: OutlinedButton.styleFrom(
                                     padding: EdgeInsets.all(15)),
                                 onPressed: () async {
-                                  var url = menuUrl;
-                                  await launch(url);
+                                  var locationUrl =
+                                      "https://www.google.com/maps/search/?api=1&query=$latitude,$longtitude";
+                                  await launch(locationUrl);
                                 },
                                 child: Row(
                                   children: [

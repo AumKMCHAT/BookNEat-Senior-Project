@@ -77,9 +77,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
         context, MaterialPageRoute(builder: (context) => const LoginScreen()));
   }
 
+  void _updateResStatus(bool status) async {
+    String uid = _auth.currentUser!.uid;
+    try {
+      QuerySnapshot querySnapshot = await _firestore
+          .collection("restaurants")
+          .where("userId", isEqualTo: uid)
+          .get();
+      querySnapshot.docs.forEach((document) async {
+        if (resStatus) {
+          await document.reference.update({
+            "status": false,
+          });
+        } else {
+          await document.reference.update({
+            "status": true,
+          });
+        }
+      });
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String uid = _auth.currentUser!.uid;
+    CollectionReference collectionRef =
+        FirebaseFirestore.instance.collection('restaurants');
+    Query query = collectionRef.where('userId', isEqualTo: uid);
     return Scaffold(
       body: FutureBuilder(
           future: Future.delayed(Duration(seconds: 2)),
@@ -212,35 +238,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             style: OutlinedButton.styleFrom(
                                 padding: EdgeInsets.all(20)),
                             onPressed: () {
-                              CollectionReference collectionRef =
-                                  FirebaseFirestore.instance
-                                      .collection('restaurants');
-                              Query query =
-                                  collectionRef.where('userId', isEqualTo: uid);
-                              if (resStatus == true)
-                                // ignore: curly_braces_in_flow_control_structures
-                                query.get().then((querySnapshot) {
-                                  querySnapshot.docs.forEach((doc) {
-                                    doc.reference
-                                        .update({'status': false})
-                                        .then((value) => print(
-                                            "Field updated successfully!"))
-                                        .catchError((error) => print(
-                                            "Failed to update field: $error"));
-                                  });
-                                });
-                              if (resStatus == false)
-                                // ignore: curly_braces_in_flow_control_structures
-                                query.get().then((querySnapshot) {
-                                  querySnapshot.docs.forEach((doc) {
-                                    doc.reference
-                                        .update({'status': true})
-                                        .then((value) => print(
-                                            "Field updated successfully!"))
-                                        .catchError((error) => print(
-                                            "Failed to update field: $error"));
-                                  });
-                                });
+                              _updateResStatus(resStatus);
                               setState(() {
                                 resStatus = !resStatus;
                               });

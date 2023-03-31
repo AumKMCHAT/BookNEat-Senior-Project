@@ -79,8 +79,11 @@ class _OrderScreenState extends State<OrderScreen> {
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('reservations')
-                .where('status', isNotEqualTo: statusReviewed)
-                .snapshots(),
+                .where('status', whereNotIn: [
+              statusReviewed,
+              statusCanceled,
+              statusCompleted
+            ]).snapshots(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Text('No Order Yet');
@@ -217,7 +220,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                         },
                                         child: Text('Cancel')),
                                   ],
-                                  if (item['status'] == statusCompleted)
+                                  if (item['status'] == statusConfirmed)
                                     ElevatedButton(
                                         onPressed: () {
                                           CollectionReference collectionRef =
@@ -236,7 +239,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                             querySnapshot.docs.forEach((doc) {
                                               doc.reference
                                                   .update({
-                                                    'status': statusReviewed
+                                                    'status': statusCompleted
                                                   })
                                                   .then((value) => print(
                                                       "Field updated successfully!"))
