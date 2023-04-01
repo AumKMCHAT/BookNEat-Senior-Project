@@ -14,6 +14,7 @@ class Restaurant {
   final int maxPerson;
   final bool status; // boolean true | false
   final String userId;
+  final String statusManual;
   final String menuUrl;
 
   const Restaurant({
@@ -31,6 +32,7 @@ class Restaurant {
     required this.timeClose,
     required this.workingMinute,
     required this.menuUrl,
+    required this.statusManual,
   });
 
   Map<String, dynamic> toJson() => {
@@ -47,6 +49,7 @@ class Restaurant {
         "timeClose": timeClose,
         "workingMinute": workingMinute,
         "userId": userId,
+        "statusManual": statusManual,
         "menuUrl": menuUrl
       };
 
@@ -67,6 +70,7 @@ class Restaurant {
       timeClose: snapshot['timeClose'],
       workingMinute: snapshot['workingMinute'],
       userId: snapshot['userId'],
+      statusManual: snapshot['statusManual'],
       menuUrl: snapshot['menuUrl'],
     );
   }

@@ -6,6 +6,7 @@ import 'package:book_n_eat_senior_project/models/restuarant.dart'
 import 'package:book_n_eat_senior_project/models/reservation.dart'
     as model_reservation;
 import 'package:book_n_eat_senior_project/resources/storage_methods.dart';
+import 'package:book_n_eat_senior_project/utils/restaurant_category.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -175,6 +176,7 @@ class AuthMedthods {
           model_restaurant.Restaurant restaurant = model_restaurant.Restaurant(
               resId: name,
               name: name,
+              statusManual: auto,
               menuUrl: filePdfPath,
               category: category,
               location: geoPoint,

@@ -34,3 +34,7 @@ const String statusConfirmed = "Confirmed";
 const String statusCompleted = "Completed";
 const String statusReviewed = "Reviewed";
 const String statusCanceled = "Canceled";
+
+const String forceOpen = "Open";
+const String forceClose = "Close";
+const String auto = "Auto";
