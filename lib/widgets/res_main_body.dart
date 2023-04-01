@@ -1,6 +1,7 @@
 import 'package:book_n_eat_senior_project/widgets/search_box.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../utils/restaurant_category.dart';
 import 'catagory_item.dart';
 import 'res_card.dart';
 import 'package:intl/intl.dart';
@@ -33,6 +34,7 @@ class _ResBodyState extends State<ResBody> {
     for (final DocumentSnapshot document in querySnapshot.docs) {
       final Timestamp timeOpen = document['timeOpen'];
       final Timestamp timeClose = document['timeClose'];
+      final String statusManual = document['statusManual'];
 
       final TimeOfDay timeOpenOfDay = TimeOfDay.fromDateTime(timeOpen.toDate());
       final TimeOfDay timeCloseOfDay =
@@ -46,6 +48,7 @@ class _ResBodyState extends State<ResBody> {
       if (currentTime.hour >= timeOpenOfDay.hour &&
           currentTime.minute >= timeOpenOfDay.minute &&
           currentTime.hour < timeCloseOfDay.hour &&
+          statusManual != forceClose &&
           index != -1) {
         await document.reference.update({'status': true});
       } else {

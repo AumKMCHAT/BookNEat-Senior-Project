@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:book_n_eat_senior_project/models/user.dart' as model;
 import '../providers/user_provider.dart';
 import '../resources/auth_methods.dart';
+import '../utils/restaurant_category.dart';
 import 'login_screen.dart';
 import 'order_screen.dart';
 
@@ -86,12 +87,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           .get();
       querySnapshot.docs.forEach((document) async {
         if (resStatus) {
-          await document.reference.update({
-            "status": false,
-          });
+          await document.reference
+              .update({"status": false, "statusManual": forceClose});
         } else {
           await document.reference.update({
             "status": true,
+            "statusManual": forceOpen,
           });
         }
       });
