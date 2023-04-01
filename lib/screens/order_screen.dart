@@ -130,17 +130,20 @@ class _OrderScreenState extends State<OrderScreen> {
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 2,
                                     ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text('Quantity: ' +
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text('Quantity: ' +
                                         item['quantity'].toString() +
                                         ' คน'),
-                                    SizedBox(
-                                      height: 10,
-                                    )
-                                  ],
-                                ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  )
+                                ],
                               ),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
