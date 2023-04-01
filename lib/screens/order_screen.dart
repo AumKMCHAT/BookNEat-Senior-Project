@@ -121,11 +121,11 @@ class _OrderScreenState extends State<OrderScreen> {
                                       color: Colors.blue),
                                 ),
                               ),
-                              subtitle: Align(
-                                alignment: Alignment.topLeft,
-                                child: Column(
-                                  children: [
-                                    Text(
+                              subtitle: Column(
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
                                       'Request: ' + item['request'],
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 2,
