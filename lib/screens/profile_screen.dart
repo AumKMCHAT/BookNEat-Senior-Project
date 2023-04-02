@@ -1,3 +1,4 @@
+import 'package:book_n_eat_senior_project/screens/info_res_screen.dart';
 import 'package:book_n_eat_senior_project/screens/signup_restaurant_screen.dart';
 import 'package:book_n_eat_senior_project/widgets/dialog_box_edit_menu.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,7 +10,6 @@ import 'package:book_n_eat_senior_project/models/user.dart' as model;
 import '../providers/user_provider.dart';
 import '../resources/auth_methods.dart';
 import '../utils/restaurant_category.dart';
-import 'info_res_screen.dart';
 import 'login_screen.dart';
 import 'order_screen.dart';
 
@@ -27,7 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String name = '';
   String role = '';
   String photoUrl = '';
-
+  String resName = '';
   bool resStatus = true;
 
   @override
@@ -44,6 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .collection('restaurants')
         .where('userId', isEqualTo: uid)
         .get();
+    QueryDocumentSnapshot resNameSnapshot = snapshot.docs[0];
     List<Map<String, dynamic>> data =
         snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
     List<String> resnames =
@@ -55,6 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       } else if (this.status[0] == 'false') {
         this.resStatus = true;
       }
+      resName = resNameSnapshot.get('resId');
     });
   }
 
@@ -109,16 +111,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Query query = collectionRef.where('userId', isEqualTo: uid);
     return Scaffold(
       body: FutureBuilder(
-          future: FirebaseFirestore.instance
-              .collection('restaurants')
-              .where('userId', isEqualTo: uid)
-              .get(),
+          future: Future.delayed(Duration(seconds: 2)),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                   child: Container(child: CircularProgressIndicator()));
             }
-            var resData = snapshot.data!.docs.first;
             return SingleChildScrollView(
               child: Column(
                 children: [
@@ -161,7 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => ResScreen(
-                                            name: resData['resId'],
+                                            name: resName,
                                           )));
                             }
                           },
