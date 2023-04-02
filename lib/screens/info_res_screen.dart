@@ -31,12 +31,15 @@ class _ResScreenState extends State<ResScreen> {
   List<double> numbers = [];
   List<String> saveRes = [''];
   String dutyTime = '';
+  List<dynamic> dutyDateList = [];
+  String dutyDate = '';
   bool isBooked = false;
 
   @override
   void initState() {
     super.initState();
     getRating();
+    getDutyTime();
     getRes();
     checkBooking();
   }
@@ -58,7 +61,7 @@ class _ResScreenState extends State<ResScreen> {
     // change button Reserver a Table to route dialog box
   }
 
-  Future<void> getRes() async {
+  Future<void> getDutyTime() async {
     String uid = _auth.currentUser!.uid;
     // Get Open/Close time
     QuerySnapshot resSnapshot = await FirebaseFirestore.instance
@@ -70,6 +73,21 @@ class _ResScreenState extends State<ResScreen> {
     DateTime closeTimes = resDocSnapshot.get('timeClose').toDate();
     String formattedOpenTime = DateFormat.jm().format(openTimes);
     String formattedCloseTime = DateFormat.jm().format(closeTimes);
+    dutyDateList = resDocSnapshot.get('days');
+    print(dutyDateList);
+    // dutyDateList = resDocSnapshot.get('days');
+
+    setState(() {
+      this.dutyTime = formattedOpenTime + ' - ' + formattedCloseTime;
+      for (var i in dutyDateList) {
+        dutyDate = dutyDate + i + ' ';
+      }
+    });
+    print(dutyDate);
+  }
+
+  Future<void> getRes() async {
+    String uid = _auth.currentUser!.uid;
     // Check Save Restaurant Status
     QuerySnapshot snapshot = await _firestore
         .collection('save')
@@ -83,7 +101,6 @@ class _ResScreenState extends State<ResScreen> {
     // Save data to variable
     setState(() {
       saveRes = resnames;
-      this.dutyTime = formattedOpenTime + ' - ' + formattedCloseTime;
       if (saveRes[0] == widget.name) {
         isSaved = !isSaved;
       }
@@ -103,7 +120,6 @@ class _ResScreenState extends State<ResScreen> {
     average = numbers.isNotEmpty
         ? numbers.reduce((a, b) => a + b) / numbers.length
         : 0;
-    print(average);
     setState(() {});
   }
 
@@ -193,12 +209,24 @@ class _ResScreenState extends State<ResScreen> {
             Align(
                 alignment: Alignment.topLeft,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 30, bottom: 15),
+                  padding: const EdgeInsets.only(left: 30, bottom: 25),
                   child: Text(
-                    'Opening hours:  ' + dutyTime,
+                    'Open times:  ',
                     style: TextStyle(
                       color: Colors.black,
-                      fontSize: 18,
+                      fontSize: 16,
+                    ),
+                  ),
+                )),
+            Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 30, bottom: 15),
+                  child: Text(
+                    dutyDate + ' | ' + dutyTime,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
                     ),
                   ),
                 )),
