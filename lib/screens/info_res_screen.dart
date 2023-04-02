@@ -74,7 +74,6 @@ class _ResScreenState extends State<ResScreen> {
     String formattedOpenTime = DateFormat.jm().format(openTimes);
     String formattedCloseTime = DateFormat.jm().format(closeTimes);
     dutyDateList = resDocSnapshot.get('days');
-    print(dutyDateList);
     // dutyDateList = resDocSnapshot.get('days');
 
     setState(() {
@@ -83,7 +82,6 @@ class _ResScreenState extends State<ResScreen> {
         dutyDate = dutyDate + i + ' ';
       }
     });
-    print(dutyDate);
   }
 
   Future<void> getRes() async {
@@ -113,7 +111,6 @@ class _ResScreenState extends State<ResScreen> {
         .collection('reviews')
         .where('resId', isEqualTo: widget.name)
         .get();
-    print(querySnapshot);
     querySnapshot.docs.forEach((doc) {
       numbers.add(doc['star']);
     });
@@ -138,7 +135,6 @@ class _ResScreenState extends State<ResScreen> {
       setState(() {
         isSaved = !isSaved;
       });
-      print('delete');
     } else {
       // Add data to Firestore
       FirebaseFirestore.instance.collection('save').add({

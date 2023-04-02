@@ -41,7 +41,7 @@ class _ResBodyState extends State<ResBody> {
           TimeOfDay.fromDateTime(timeClose.toDate());
 
       final TimeOfDay currentTime = TimeOfDay.now();
-      List<String> myArray = querySnapshot.docs.first['days'].cast<String>();
+      List<String> myArray = document.get('days').cast<String>();
 
       int index = myArray.indexOf(formattedDate);
 

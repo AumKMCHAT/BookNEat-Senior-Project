@@ -188,8 +188,6 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                     ),
                     onPressed: () {
                       // Do something with the rating and comment, e.g. send them to a server
-                      print(
-                          'Rating: $_rating, Comment: $_comment Date: $formattedDate ');
                       FirebaseFirestore.instance.collection('reviews').add({
                         'star': _rating,
                         'comment': _comment,
