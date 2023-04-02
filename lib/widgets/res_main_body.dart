@@ -37,8 +37,12 @@ class _ResBodyState extends State<ResBody> {
       final String statusManual = document['statusManual'];
 
       final TimeOfDay timeOpenOfDay = TimeOfDay.fromDateTime(timeOpen.toDate());
-      final TimeOfDay timeCloseOfDay =
-          TimeOfDay.fromDateTime(timeClose.toDate());
+      TimeOfDay timeCloseOfDay = TimeOfDay.fromDateTime(timeClose.toDate());
+
+      if (timeCloseOfDay.hour < timeOpenOfDay.hour) {
+        timeCloseOfDay = TimeOfDay(
+            hour: timeCloseOfDay.hour + 24, minute: timeCloseOfDay.minute);
+      }
 
       final TimeOfDay currentTime = TimeOfDay.now();
       List<String> myArray = document.get('days').cast<String>();
