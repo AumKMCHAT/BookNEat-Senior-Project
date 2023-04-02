@@ -49,7 +49,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         data.map((item) => item['status'].toString() as String).toList();
     setState(() {
       this.status = resnames;
-      print(this.status[0]);
       if (this.status[0] == 'true') {
         this.resStatus = false;
       } else if (this.status[0] == 'false') {

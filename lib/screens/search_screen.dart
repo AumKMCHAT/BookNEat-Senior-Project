@@ -1,6 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:book_n_eat_senior_project/widgets/app_bar.dart';
+import 'package:book_n_eat_senior_project/widgets/screen_app_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../widgets/app_bar.dart';
+import 'package:flutter/material.dart';
+
 import '../widgets/res_card.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -9,45 +11,7 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final _controller = TextEditingController();
-  bool _isLoading = false;
-  bool status = true;
-  List _searchResults = [];
-
-  Future<void> _searchFirestore(String searchText) async {
-    setState(() {
-      _isLoading = true;
-      _searchResults = [];
-    });
-
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('restaurants')
-          .where('resId', isGreaterThanOrEqualTo: searchText)
-          .where('resId', isLessThan: searchText + 'z')
-          .get();
-
-      if (snapshot.docs.isNotEmpty) {
-        setState(() {
-          _searchResults = snapshot.docs.map((doc) => doc.data()).toList();
-          status = true;
-        });
-      } else {
-        setState(() {
-          _searchResults = ['No data found'];
-          status = false;
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _searchResults = ['Error: ${e.toString()}'];
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
+  TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +30,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
             child: TextField(
-              controller: _controller,
+              controller: _searchController,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 icon: Icon(Icons.search),
@@ -75,38 +39,51 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _isLoading
-                ? null
-                : () async {
-                    final searchText = _controller.text.trim();
-                    if (searchText.isNotEmpty) {
-                      await _searchFirestore(searchText);
-                    }
-                  },
-            child: Text('Search'),
+          SizedBox(
+            height: 20,
           ),
-          SizedBox(height: 20),
-          _isLoading
-              ? CircularProgressIndicator()
-              : status
-                  ? Expanded(
-                      child: ListView.builder(
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          final result = _searchResults[index];
-                          final List<dynamic> myList =
-                              result['photoUrl'] as List<dynamic>;
-                          return ResCard(
-                              title: result['name'],
-                              catagory: result['category'],
-                              status: result['status'],
-                              photo: [myList[0]]);
-                        },
-                      ),
-                    )
-                  : Text('No data found'),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('restaurants')
+                .snapshots(),
+            builder:
+                (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text('Something went wrong'),
+                );
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              var filteredData = snapshot.data!.docs
+                  .where((doc) => doc['resId']
+                      .toString()
+                      .toLowerCase()
+                      .contains(_searchController.text.toLowerCase()))
+                  .toList();
+
+              return SizedBox(
+                height: 660,
+                child: ListView.builder(
+                  itemCount: filteredData.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final List<dynamic> myList =
+                        filteredData[index]['photoUrl'] as List<dynamic>;
+                    return ResCard(
+                        title: filteredData[index]['name'],
+                        catagory: filteredData[index]['category'],
+                        status: filteredData[index]['status'],
+                        photo: [myList[0]]);
+                  },
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
