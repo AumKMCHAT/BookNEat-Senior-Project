@@ -9,6 +9,7 @@ import 'package:book_n_eat_senior_project/models/user.dart' as model;
 import '../providers/user_provider.dart';
 import '../resources/auth_methods.dart';
 import '../utils/restaurant_category.dart';
+import 'info_res_screen.dart';
 import 'login_screen.dart';
 import 'order_screen.dart';
 
@@ -108,17 +109,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     Query query = collectionRef.where('userId', isEqualTo: uid);
     return Scaffold(
       body: FutureBuilder(
-          future: Future.delayed(Duration(seconds: 2)),
+          future: FirebaseFirestore.instance
+              .collection('restaurants')
+              .where('userId', isEqualTo: uid)
+              .get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(
                   child: Container(child: CircularProgressIndicator()));
             }
+            var resData = snapshot.data!.docs.first;
             return SingleChildScrollView(
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 40, 0, 20),
+                    padding: const EdgeInsets.fromLTRB(0, 40, 0, 0),
                     child: Center(
                       child: CircleAvatar(
                         backgroundImage: NetworkImage(photoUrl),
@@ -151,19 +156,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           SignupRestaurantScreen()));
-                            } else if (role == 'restaurant') {}
+                            } else if (role == 'restaurant') {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ResScreen(
+                                            name: resData['resId'],
+                                          )));
+                            }
                           },
                           child: Row(
                             children: [
-                              if (role == 'customer')
-                                Icon(
-                                  Icons.storefront,
-                                  size: 30.0,
-                                ),
+                              Icon(
+                                Icons.storefront,
+                                size: 30.0,
+                              ),
                               if (role == 'customer')
                                 Text(
                                   "          Create Restaurant",
-                                  style: TextStyle(fontSize: 16),
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              if (role == 'restaurant')
+                                Text(
+                                  "          My Restaurant",
+                                  style: TextStyle(fontSize: 18),
                                 )
                             ],
                           )),

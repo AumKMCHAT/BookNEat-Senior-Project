@@ -136,7 +136,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                     child: Text(
                                       dateString,
                                       style: TextStyle(
-                                          fontSize: 18,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.blue),
                                     ),
