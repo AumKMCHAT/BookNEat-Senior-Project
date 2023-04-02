@@ -15,8 +15,9 @@ import '../resources/auth_methods.dart';
 
 class BookingScreen extends StatefulWidget {
   final String resId;
+  final List<dynamic> workDay;
 
-  const BookingScreen({super.key, required this.resId});
+  const BookingScreen({super.key, required this.resId, required this.workDay});
 
   @override
   State<BookingScreen> createState() => BookingScreenState();
@@ -46,6 +47,16 @@ class BookingScreenState extends State<BookingScreen> {
   String phoneNumber = '';
   String name = '';
 
+  final List<String> allDays = [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun"
+  ];
+
   @override
   void initState() {
     // TODO: implement initState
@@ -57,12 +68,18 @@ class BookingScreenState extends State<BookingScreen> {
         _isLoading = false;
       });
     });
+    print(widget.workDay);
   }
 
   @override
   void dispose() {
     super.dispose();
     _requestController.dispose();
+  }
+
+  bool isWorkDay(DateTime date) {
+    String dayOfWeek = DateFormat('E').format(date);
+    return widget.workDay.contains(dayOfWeek);
   }
 
   void onBooking() {
@@ -224,6 +241,12 @@ class BookingScreenState extends State<BookingScreen> {
                                     true, // when true user cannot edit text
                                 onTap: () async {
                                   DateTime? pickedDate = await showDatePicker(
+                                      selectableDayPredicate: (DateTime date) {
+                                        if (!isWorkDay(date)) {
+                                          return false;
+                                        }
+                                        return true;
+                                      },
                                       context: context,
                                       initialDate:
                                           DateTime.now(), //get today's date

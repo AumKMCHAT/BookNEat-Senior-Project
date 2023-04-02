@@ -397,6 +397,7 @@ class _ResScreenState extends State<ResScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => BookingScreen(
+                          workDay: dutyDateList,
                               resId: widget.name,
                             )));
             },
