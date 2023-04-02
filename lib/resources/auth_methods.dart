@@ -207,21 +207,6 @@ class AuthMedthods {
     return res;
   }
 
-  Future<void> uploadMenu(List<Menu> menus) async {
-    // final User? user = _auth.currentUser;
-    // _firestore.collection('users').doc(_auth.currentUser!.uid).get().then(
-    //     (DocumentSnapshot documentSnapshot) => print(documentSnapshot.data()));
-    // _firestore.collection('menus').doc(_auth.currentUser!.uid);
-    Menu menu = menus[0];
-    Map<String, dynamic> map = menu.toJson();
-    for (int i = 1; i < menus.length; i++) {
-      Menu m = menus[i];
-      map.addAll(m.toJson());
-    }
-
-    _firestore.collection('menus').doc('testResId').set(map);
-  }
-
   Future<String> bookingRestaurant({
     required int quantity,
     required Timestamp bookingDate,

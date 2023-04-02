@@ -233,10 +233,6 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
     });
   }
 
-  void printData() {
-    AuthMedthods().uploadMenu(menus);
-  }
-
   @override
   Widget build(BuildContext context) {
     forms.clear();
