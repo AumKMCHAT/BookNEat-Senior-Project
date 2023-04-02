@@ -68,7 +68,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   .toList();
 
               return SizedBox(
-                height: 660,
+                height: 370,
                 child: ListView.builder(
                   itemCount: filteredData.length,
                   itemBuilder: (BuildContext context, int index) {
