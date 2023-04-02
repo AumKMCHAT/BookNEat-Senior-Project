@@ -6,6 +6,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/app_bar.dart';
 import 'package:book_n_eat_senior_project/utils/restaurant_category.dart';
@@ -118,7 +119,7 @@ class _ResScreenState extends State<ResScreen> {
       numbers.add(doc['star']);
     });
     average = numbers.isNotEmpty
-        ? numbers.reduce((a, b) => a + b) / numbers.length
+        ? (numbers.reduce((a, b) => a + b) / numbers.length).toPrecision(2)
         : 0;
     setState(() {});
   }
