@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:book_n_eat_senior_project/resources/auth_methods.dart';
 import 'package:book_n_eat_senior_project/screens/login_screen.dart';
-import 'package:book_n_eat_senior_project/screens/profile_screen.dart';
 import 'package:book_n_eat_senior_project/screens/res_main_screen.dart';
 import 'package:book_n_eat_senior_project/utils/colors.dart';
 import 'package:book_n_eat_senior_project/utils/utils.dart';
@@ -73,6 +72,8 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
   void dispost() {
     super.dispose();
     _resNameController.dispose();
+    _phoneController.dispose();
+    _maxPersonController.dispose();
   }
 
   Future<void> _pickFile() async {
@@ -130,33 +131,48 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
     setState(() {
       _isLoading = true;
     });
-
-    String res = await AuthMedthods().signUpRestaurant(
-      name: _resNameController.text,
-      category: _category,
-      filePdf: filePdf,
-      position: _position,
-      files: files,
-      telephone: _phoneController.text,
-      maxPerson: int.parse(_maxPersonController.text),
-      status: status,
-      days: days,
-      timeOpen: openTimeStamp,
-      timeClose: closeTimeStamp,
-      workingMinute: workingMinute,
-    );
+    String res = "Please Fill Every Information";
+    try {
+      if (_resNameController.text.isEmpty ||
+          filePdf.path.isEmpty ||
+          _position.latitude.toString().isEmpty ||
+          _position.longitude.toString().isEmpty ||
+          files.isEmpty ||
+          _phoneController.text.toString().isEmpty ||
+          _maxPersonController.text.toString().isEmpty ||
+          days.isEmpty) {
+        // some information not filled
+      } else if (_category == "All") {
+        res = "Category cannot be All";
+      } else {
+        res = await AuthMedthods().signUpRestaurant(
+          name: _resNameController.text,
+          category: _category,
+          filePdf: filePdf,
+          position: _position,
+          files: files,
+          telephone: _phoneController.text,
+          maxPerson: int.parse(_maxPersonController.text),
+          status: status,
+          days: days,
+          timeOpen: openTimeStamp,
+          timeClose: closeTimeStamp,
+          workingMinute: workingMinute,
+        );
+      }
+    } catch (err) {
+      res = err.toString();
+    }
 
     setState(() {
       _isLoading = false;
     });
 
-    // if (res != 'success') {
-    //   showSnackBar(res, context);
-    // } else {
-    print("success");
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const ResMainScreen()));
-    // }
+    showSnackBar(res, context);
+    if (res == "success") {
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const ResMainScreen()));
+    }
   }
 
   void navigateToLogin() {
@@ -235,14 +251,6 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
 
   @override
   Widget build(BuildContext context) {
-    forms.clear();
-    for (int i = 0; i < menus.length; i++) {
-      forms.add(MenuForm(
-        menu: menus[i],
-        onDelete: (() => onDelete(i)),
-        key: GlobalKey(),
-      ));
-    }
     return Scaffold(
       appBar: homeAppBar(context),
       body: SingleChildScrollView(
@@ -252,7 +260,6 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
           width: double.infinity,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-            //svg image
             const Text(
               "Register Restaurant",
               style: TextStyle(fontSize: 24),
