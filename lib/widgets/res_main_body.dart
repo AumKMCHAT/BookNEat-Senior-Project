@@ -21,44 +21,6 @@ class _ResBodyState extends State<ResBody> {
   @override
   void initState() {
     super.initState();
-    updateStatusRes();
-  }
-
-  Future<void> updateStatusRes() async {
-    final CollectionReference collection =
-        FirebaseFirestore.instance.collection('restaurants');
-    final QuerySnapshot querySnapshot = await collection.get();
-    DateTime currentDate = DateTime.now();
-    String formattedDate = DateFormat('EEE').format(currentDate);
-
-    for (final DocumentSnapshot document in querySnapshot.docs) {
-      final Timestamp timeOpen = document['timeOpen'];
-      final Timestamp timeClose = document['timeClose'];
-      final String statusManual = document['statusManual'];
-
-      final TimeOfDay timeOpenOfDay = TimeOfDay.fromDateTime(timeOpen.toDate());
-      TimeOfDay timeCloseOfDay = TimeOfDay.fromDateTime(timeClose.toDate());
-
-      if (timeCloseOfDay.hour < timeOpenOfDay.hour) {
-        timeCloseOfDay = TimeOfDay(
-            hour: timeCloseOfDay.hour + 24, minute: timeCloseOfDay.minute);
-      }
-
-      final TimeOfDay currentTime = TimeOfDay.now();
-      List<String> myArray = document.get('days').cast<String>();
-
-      int index = myArray.indexOf(formattedDate);
-
-      if (currentTime.hour >= timeOpenOfDay.hour &&
-          currentTime.minute >= timeOpenOfDay.minute &&
-          currentTime.hour < timeCloseOfDay.hour &&
-          statusManual != forceClose &&
-          index != -1) {
-        await document.reference.update({'status': true});
-      } else {
-        await document.reference.update({'status': false});
-      }
-    }
   }
 
   Stream<QuerySnapshot> getAllData() {

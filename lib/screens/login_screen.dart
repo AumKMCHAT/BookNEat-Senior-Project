@@ -60,9 +60,11 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           //svg image
           Flexible(flex: 2, child: Container()),
-          SvgPicture.asset(
-              'assets/images/dining-room-furniture-of-a-table-with-chairs.svg',
-              height: 150),
+          Image.asset(
+            'assets/images/bookneat_logo.png',
+            height: 200,
+            width: 200,
+          ),
           const SizedBox(height: 64),
 
           //text field input for email
