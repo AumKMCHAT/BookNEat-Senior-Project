@@ -94,9 +94,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 children: [
                   //svg image
                   Flexible(flex: 2, child: Container()),
-                  SvgPicture.asset(
-                      'assets/images/dining-room-furniture-of-a-table-with-chairs.svg',
-                      height: 150),
+                  Image.asset('assets/images/bookneat_logo.png', height: 200),
 
                   // circular widget to accept and show our selected file
                   Stack(
