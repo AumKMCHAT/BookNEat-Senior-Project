@@ -80,6 +80,7 @@ class _OrderScreenState extends State<OrderScreen> {
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
                 .collection('reservations')
+                .where('userId', isEqualTo: uid)
                 .where('status', whereNotIn: [
               statusReviewed,
               statusCanceled,

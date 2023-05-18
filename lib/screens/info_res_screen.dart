@@ -121,14 +121,14 @@ class _ResScreenState extends State<ResScreen> {
     setState(() {});
   }
 
-  void handleButtonPress(String user, String restaurant) async {
+  void saveRestaurant(String user, String restaurant) async {
     if (isSaved) {
       Query myQuery = FirebaseFirestore.instance
           .collection('save')
           .where('userId', isEqualTo: user)
           .where('resId', isEqualTo: restaurant);
       QuerySnapshot querySnapshot = await myQuery.get();
-      // Delete data from Firestore
+
       List<QueryDocumentSnapshot> documents = querySnapshot.docs;
       documents.forEach((document) {
         document.reference.delete();
@@ -137,7 +137,6 @@ class _ResScreenState extends State<ResScreen> {
         isSaved = !isSaved;
       });
     } else {
-      // Add data to Firestore
       FirebaseFirestore.instance.collection('save').add({
         'resId': restaurant,
         'userId': user,
@@ -146,7 +145,6 @@ class _ResScreenState extends State<ResScreen> {
         isSaved = !isSaved;
       });
     }
-    // Update the state of the button
   }
 
   @override
@@ -196,7 +194,7 @@ class _ResScreenState extends State<ResScreen> {
                           ? Icon(Icons.favorite)
                           : Icon(Icons.favorite_outline_rounded),
                       onPressed: () async {
-                        handleButtonPress(uid, widget.name);
+                        saveRestaurant(uid, widget.name);
                       },
                     ),
                   ),
@@ -397,7 +395,7 @@ class _ResScreenState extends State<ResScreen> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => BookingScreen(
-                          workDay: dutyDateList,
+                              workDay: dutyDateList,
                               resId: widget.name,
                             )));
             },

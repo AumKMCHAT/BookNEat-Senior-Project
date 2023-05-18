@@ -187,7 +187,6 @@ class _RatingCommentScreenState extends State<RatingCommentScreen> {
                       ),
                     ),
                     onPressed: () {
-                      // Do something with the rating and comment, e.g. send them to a server
                       FirebaseFirestore.instance.collection('reviews').add({
                         'star': _rating,
                         'comment': _comment,

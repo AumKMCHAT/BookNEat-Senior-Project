@@ -150,13 +150,8 @@ class _SignupRestaurantScreenState extends State<SignupRestaurantScreen> {
       _isLoading = false;
     });
 
-    // if (res != 'success') {
-    //   showSnackBar(res, context);
-    // } else {
-    print("success");
     Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => const ResMainScreen()));
-    // }
   }
 
   void navigateToLogin() {
